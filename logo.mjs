@@ -10,8 +10,6 @@ export const OPENMARKETING_ASCII_LOGO = [
 	" ╚═════╝ ╚═╝     ╚═╝   SYS/01 · HUMAN-GUIDED",
 ];
 
-export const OPENMARKETING_ASCII_LOGO_TEXT = OPENMARKETING_ASCII_LOGO.join("\n");
-
 // Inline and dependency-free so the localhost OAuth callback works without
 // remote fonts, images, or scripts. Page-level styling lives in the dedicated
 // OAuth patch rather than leaking out of the mark itself.
@@ -20,6 +18,3 @@ export const OPENMARKETING_AUTH_MARK_HTML = `<svg class="auth-mark" viewBox="0 0
   <path class="auth-mark-letter" d="M19 60a14 20 0 1 0 28 0a14 20 0 1 0-28 0M58 80V40l15 21 15-21v40" />
   <path class="auth-mark-slash" d="m96 82 12-44" />
 </svg>`;
-
-// Backward-compatible export for older installers that only replace Pi's logo.
-export const OPENMARKETING_LOGO_HTML = OPENMARKETING_AUTH_MARK_HTML;

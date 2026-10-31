@@ -1,3 +1,5 @@
+// Resolves Pi's install paths and builds the argument list and environment used to launch it.
+
 import { existsSync, readFileSync } from "node:fs";
 import { delimiter, dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -6,6 +8,7 @@ import {
 	BROWSER_FALLBACK_PATHS,
 	MERMAID_FALLBACK_PATHS,
 	PANDOC_FALLBACK_PATHS,
+	getPathWithCurrentNode,
 	resolveExecutable,
 	type ResolvedExecutables,
 } from "../system/executables.js";
@@ -125,7 +128,8 @@ export function buildPiEnv(
 	const openmarketingNpmBinPath = resolve(openmarketingNpmPrefixPath, "bin");
 	const openmarketingWebSearchConfigPath = resolve(options.openmarketingAgentDir, "web-search.json");
 
-	const currentPath = process.env.PATH ?? "";
+	// The standalone bundle ships node and npm side by side and nothing on PATH; Pi needs that npm for its packages.
+	const currentPath = getPathWithCurrentNode(process.env.PATH ?? "");
 	const binEntries = [paths.nodeModulesBinPath, resolve(paths.piWorkspaceNodeModulesPath, ".bin"), openmarketingNpmBinPath];
 	const binPath = binEntries.join(delimiter);
 	const pandocPath = process.env.PANDOC_PATH ?? executables?.pandoc ?? resolveExecutable("pandoc", PANDOC_FALLBACK_PATHS);

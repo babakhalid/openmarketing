@@ -1,3 +1,5 @@
+// Opens a URL in the default browser on macOS, Linux and Windows.
+
 import { spawn } from "node:child_process";
 
 import { resolveExecutable } from "./executables.js";

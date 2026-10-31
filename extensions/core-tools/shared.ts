@@ -1,3 +1,5 @@
+// Constants shared by the core extension: app root, version and logo.
+
 import { readFileSync } from "node:fs";
 import { dirname, resolve as resolvePath } from "node:path";
 import { fileURLToPath } from "node:url";

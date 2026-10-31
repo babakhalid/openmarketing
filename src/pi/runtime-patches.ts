@@ -1,3 +1,5 @@
+// Applies OpenMarketing's source patches (scripts/lib/*-patch.mjs) to the installed Pi packages.
+
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 

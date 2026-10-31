@@ -1,3 +1,6 @@
+// Wrapper the Pi process runs through (started by launch.ts): sets the process title,
+// enables proxy support from the environment and quiets stdin/warning noise before calling Pi's main().
+
 import { pathToFileURL } from "node:url";
 
 import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";

@@ -1,170 +1,150 @@
 <p align="center">
   <strong>OpenMarketing</strong>
 </p>
-<p align="center">The open-source marketing operating system for technical founders.</p>
+<p align="center">Your AI marketing team, guided step by step. Open source, for technical founders.</p>
 <p align="center"><a href="https://openmarketing.dev">openmarketing.dev</a> · Built by <a href="https://youmake.dev">Youmake</a></p>
 <p align="center">
   <a href="https://github.com/babakhalid/openmarketing/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-0d9668?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/openmarketing"><img alt="npm" src="https://img.shields.io/npm/v/openmarketing?style=flat-square" /></a>
 </p>
 
+<p align="center">
+  <a href="https://openmarketing.dev"><img alt="OpenMarketing in action: a /video request, the brand checkpoint, picking a style, results, and a strategy" src="assets/openmarketing-demo.gif" width="100%" /></a>
+</p>
+
 ---
 
 ### What it does
 
-OpenMarketing turns a technical product description into a focused, evidence-backed marketing system:
+Building the product is the part you're good at. Marketing is ten jobs at once: research the market, understand your customers, pick a strategy, write the ads, make the video, track what works.
+
+OpenMarketing is a team of AI agents that does that work with you, in your terminal or in a desktop app. You describe your product; it walks you through research, positioning, personas, ad creatives, short-form video and Meta Ads reporting. It suggests, you decide: the brand, the style and the plan are yours to approve, and nothing is published, uploaded or spent without you.
 
 ```
 $ openmarketing start "an API observability product for small platform teams"
 → Shared context, readiness check, current bottleneck, one justified next action
 
-$ openmarketing customer-research api-observability
-→ Customer language, jobs, pains, triggers, objections, contradictions, source trail
-
 $ openmarketing research api-observability
 → Competitors, alternatives, demand signals, category movement, distribution evidence
 
-$ openmarketing diagnose api-observability
-→ Binding full-funnel constraint and the smallest useful test
-
 $ openmarketing strategy api-observability
-→ Positioning foundation, up to three focused bets, explicit non-bets, measurement
+→ Positioning, up to three focused bets, explicit non-bets, measurement
 
-$ openmarketing plan api-observability
-→ Owners, dependencies, assets, approval gates, decision rules, 90-day sequence
-
-$ openmarketing weekly-review api-observability
-→ Verified learning, continue/change/stop/investigate decisions, one next action
+$ openmarketing video "15-second launch teaser"
+→ Brand check, reference picks, style choice, storyboard approval, rendered and QA'd video
 ```
 
-The canonical context is reused across every workflow, so a returning founder resumes from prior evidence and decisions instead of restarting discovery. Paid advertising remains available through `/creative` and `/track`, but it is readiness-gated rather than treated as the default answer.
-
-Built on [Pi](https://github.com/badlogic/pi-mono). Important claims and metrics must trace to customer evidence, a source URL, a saved artifact, or a raw platform response.
+Every workflow reads and updates one shared context, so you pick up where you left off instead of starting over. Important claims and metrics must trace to customer evidence, a source URL, a saved artifact, or a raw platform response.
 
 ---
 
-### Installation
-
-**macOS / Linux:**
+### Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.sh | bash
+npm install -g openmarketing
+openmarketing setup
 ```
 
-**Windows (PowerShell):**
+This adds `openmarketing` and its short alias `om`. Requires Node.js 20.19 or newer (up to 24.x). `openmarketing setup` connects a model: sign in with a subscription (Claude, ChatGPT, Copilot, …), paste an API key, or point it at a local model (LM Studio, Ollama, vLLM, LiteLLM).
 
-```powershell
-irm https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.ps1 | iex
+Standalone bundle with its own Node.js runtime, from GitHub Releases:
+
+```bash
+curl -fsSL https://openmarketing.dev/install | bash                 # macOS / Linux
+irm https://openmarketing.dev/install.ps1 | iex                     # Windows (PowerShell)
 ```
 
-The one-line installer fetches the latest tagged release and downloads a standalone native bundle with its own Node.js runtime.
+Rerun the installer to upgrade it. `openmarketing update` refreshes the installed Pi packages, not the bundle itself. To uninstall, remove the launcher and bundle, and `~/.openmarketing` if you also want to delete settings and sessions.
 
-The installer adds both `openmarketing` and its short alias `om`. To upgrade, rerun the installer. `openmarketing update` only refreshes installed Pi packages inside OpenMarketing' environment; it does not replace the standalone runtime bundle itself.
+Coming from MarketingAgents or AdsAgents? Your settings and sessions move to `~/.openmarketing` automatically on first launch.
 
-Upgrading from AdsAgents? Install `openmarketing` and uninstall the former AdsAgents package. On first launch, OpenMarketing moves `~/.adsagents` to `~/.openmarketing` when the new directory is absent; if both exist, it preserves both and uses the new directory.
+---
 
-To uninstall, remove the launcher and runtime bundle, then optionally remove `~/.openmarketing` if you also want to delete settings, sessions, and installed package state.
+### Desktop app
 
-Local models are supported through the setup flow. Run `openmarketing setup`, choose your provider — LM Studio, LiteLLM, Ollama, vLLM, or OAuth/API-key for any of OpenAI, Anthropic, Google, OpenRouter, etc.
+<img alt="The OpenMarketing desktop app" src="website/public/app-dark.jpg" width="100%" />
+
+The desktop app runs the same agents over a folder you pick: each tool call gets its own card, decisions show up as cards you answer in the chat, and the side panel shows your references, brand page and latest video. See [apps/desktop](apps/desktop/README.md) to run it.
 
 ---
 
 ### Workflows
 
-Ask naturally or use slash commands as shortcuts. `/start` is the beginner-friendly front door; specialist commands remain available for direct use.
+Ask in plain words, or use slash commands as shortcuts. `/start` is the front door.
 
 | Command | What it does |
 | --- | --- |
-| `/start <product>` | Establish context, assess six readiness gates, choose one next action |
-| `/context <product-or-slug>` | Maintain the shared product, customer, offer, funnel, proof, and constraint record |
-| `/customer-research <slug>` | Analyze first-party or public voice-of-customer evidence with provenance |
-| `/research <topic-or-slug>` | Research competitors, alternatives, demand, category changes, and distribution |
-| `/diagnose <slug>` | Find the binding acquisition, activation, retention, referral, or revenue constraint |
-| `/next <slug>` | Select one highest-leverage action from current evidence and capacity |
-| `/strategy <slug>` | Choose focused full-funnel bets, non-bets, measurement, and approval gates |
-| `/persona <slug>` | Build evidence-grounded user, buyer, champion, and evaluator profiles |
-| `/psychology <slug>` | Map JTBD, friction, awareness, and ethical persuasion to messaging |
-| `/plan <slug>` | Turn strategy into a sequenced 90-day execution plan |
-| `/creative <slug>` | Generate readiness-gated ad creative via Higgsfield |
-| `/track <slug>` | Pull and verify Meta Ads evidence for the paid specialist branch |
-| `/weekly-review <slug>` | Turn full-funnel evidence into operating decisions and the next action |
-| `/loop <slug> <purpose>` | Design a bounded recurring process with state, self-checks, and a kill switch |
-| `/report <slug>` | Produce a decision-focused marketing report (Markdown + optional PDF) |
-| `/summarize <source>` | RLM-style summarization of URLs / files / PDFs |
+| `/start <product>` | Set up context, check six readiness gates, choose one next action |
+| `/context <product-or-slug>` | Keep the shared product, customer, offer, funnel, proof and constraint record |
+| `/customer-research <slug>` | Analyze voice-of-customer evidence, with where each quote came from |
+| `/research <topic-or-slug>` | Research competitors, alternatives, demand, category changes and distribution |
+| `/diagnose <slug>` | Find the binding acquisition, activation, retention, referral or revenue constraint |
+| `/next <slug>` | Pick the single highest-leverage action from current evidence and capacity |
+| `/strategy <slug>` | Choose focused bets, non-bets, measurement and approval gates |
+| `/persona <slug>` | Build evidence-grounded user, buyer, champion and evaluator profiles |
+| `/psychology <slug>` | Map jobs-to-be-done, friction, awareness and ethical persuasion to messaging |
+| `/plan <slug>` | Turn the strategy into a sequenced 90-day plan |
+| `/creative <slug>` | Generate ad creative with Higgsfield, once the basics are in place |
+| `/video <brief>` | Make a short-form video, guided step by step, with an automated QA gate |
+| `/track <slug>` | Pull and verify Meta Ads results |
+| `/weekly-review <slug>` | Turn the week's evidence into decisions and the next action |
+| `/loop <slug> <purpose>` | Design a safe recurring process with state, self-checks and a kill switch |
+| `/report <slug>` | Write a decision-focused marketing report (Markdown, optional PDF) |
+| `/summarize <source>` | Summarize a URL, file or PDF without loading it all into context |
+| `/jobs`, `/log` | See running background work; save a session log |
 
 ---
 
 ### Agents
 
-Eight bundled subagents are dispatched when decomposition or an independent verification pass materially helps.
+Nine bundled subagents take on work that splits cleanly or needs an independent check.
 
-- **market-researcher** — market, alternatives, audience, demand, and channel evidence with source URLs
-- **customer-researcher** — first-party and proxy voice-of-customer synthesis with quote provenance
-- **strategist** — full-funnel strategy/plan building plus adversarial critique
-- **psych-analyst** — behavioral-science levers mapped to ethical messaging and creative directions
-- **persona-builder** — evidence-grounded user, buyer, champion, and evaluator profiles
-- **creative-director** — orchestrates Higgsfield + Meta tools; never launches ads
-- **tracker** — verifies Meta insights and paid-campaign refinement proposals against raw evidence
-- **reporter** — decision-focused full-funnel reporting; never fabricates missing data
+- **market-researcher**: market, alternatives, audience, demand and channel evidence, with source URLs
+- **customer-researcher**: first-party and proxy voice-of-customer synthesis, with quote provenance
+- **strategist**: builds the strategy and plan, then critiques them adversarially
+- **psych-analyst**: behavioral-science levers mapped to ethical messaging
+- **persona-builder**: evidence-grounded personas and business understanding
+- **creative-director**: Higgsfield creative and Meta uploads; never launches ads
+- **video-editor**: storyboard, render, finish and QA for short-form video; never publishes
+- **tracker**: verifies Meta Ads results and refinement proposals against raw data
+- **reporter**: decision-focused reporting; never fills in missing data
 
 ---
 
-### Tools & Integrations
+### Tools and integrations
 
-- **Higgsfield CLI** — image and video generation for ad creative (image, video, jobs, workspaces, balance)
-- **Meta Ads CLI** — campaigns, ad sets, ads, insights, creative upload, budget updates
-- **Web search** — provider-agnostic, configured via `openmarketing search set`
-- **Preview** — browser and PDF export of generated reports
+- **Higgsfield CLI**: image and video generation for ad creative
+- **Meta Ads CLI**: campaigns, ad sets, ads, insights, creative upload, budgets
+- **Video studio**: Remotion and ffmpeg rendering with a QA gate
+- **Cross-model tools**: ask another connected model for a second opinion, or generate images with GPT Image
+- **Web search**: provider-agnostic, set with `openmarketing search set`
+- **Preview**: browser and PDF export of reports
 
-Both Higgsfield and Meta integrations are Pi extensions that shell out to their respective CLIs. Override binary paths with `HIGGSFIELD_BIN` and `META_BIN` env vars.
+Higgsfield and Meta are Pi extensions that call their CLIs. Override the binary paths with `HIGGSFIELD_BIN` and `META_BIN`.
 
 ---
 
 ### How it works
 
-Built on [Pi](https://github.com/badlogic/pi-mono) for the agent runtime. Capabilities are delivered as [Pi skills](https://github.com/badlogic/pi-skills) — Markdown instruction files synced to `~/.openmarketing/agent/skills/` on startup.
+OpenMarketing runs on [Pi](https://github.com/badlogic/pi-mono). Workflows are prompt templates in `prompts/`, capabilities are [Pi skills](https://github.com/badlogic/pi-skills) in `skills/`, subagents are defined in `.openmarketing/agents/`, and the tools are Pi extensions in `extensions/`. On startup these are synced into `~/.openmarketing/agent/`.
 
-The operating flow is context → customer/market evidence → diagnosis → strategy → plan → approved execution → measurement → weekly decision → next action. Recurring loops add cadence, an action condition, durable state, idempotency, self-checks, escalation rules, and a kill switch. Drafting and analysis can run autonomously; publishing, outreach, uploads, live-account changes, and spend require explicit user approval.
+The flow is context → customer and market evidence → diagnosis → strategy → plan → approved execution → measurement → weekly decision → next action. Drafting and analysis can run on their own; publishing, outreach, uploads, live-account changes and spend need your explicit approval.
 
 ---
 
-### Run locally
+### Contributing
 
 ```bash
 git clone https://github.com/babakhalid/openmarketing.git
 cd openmarketing
 nvm use || nvm install
 npm install
-npm run dev -- --help
 npm run dev -- start "<your product>"
 ```
 
-Run the interactive development build with `npm run dev`. Before publishing a change, run:
+[CONTRIBUTING.md](CONTRIBUTING.md) has the project map, the checks to run before a PR, and the release process. [AGENTS.md](AGENTS.md) is the contract for agents working in this repo.
 
-```bash
-npm test
-npm run typecheck
-npm run build
-ASTRO_TELEMETRY_DISABLED=1 npm --prefix website run build
-node ./bin/openmarketing.js --help
-```
-
-### Publish
-
-`openmarketing` is a new unscoped npm package; npm does not rename the former package in place. For the first release, add a granular npm publish token as the repository secret `NPM_TOKEN`, then run the `Publish and Release` workflow (or push the new version to `main`). As a local fallback, publish while signed in to the npm account that will own the package:
-
-```bash
-npm login
-npm whoami
-npm pack --dry-run
-npm publish
-```
-
-The GitHub workflow then handles later releases, native bundles, provenance, and release notes whenever `package.json` contains a version that is not yet fully released. After the first npm publish, configure npm trusted publishing for repository `babakhalid/openmarketing` and workflow `publish.yml`; then remove the temporary `NPM_TOKEN` secret. The `repository.url` must exactly match the public GitHub repository for provenance.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development conventions and [RELEASES.md](RELEASES.md) for the release entry.
-
-[Release Notes](RELEASES.md) · [MIT License](LICENSE)
+[Release notes](RELEASES.md) · [MIT License](LICENSE)
 
 ---
 
@@ -172,6 +152,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development conventions and [RELEASES
 
 OpenMarketing is built and maintained by [Youmake](https://youmake.dev).
 
-OpenMarketing was forked from [Feynman](https://github.com/getcompanion-ai/feynman) (MIT). The Pi runtime + skills architecture, install pipeline, and many runtime patches are upstream contributions we depend on.
+OpenMarketing was forked from [Feynman](https://github.com/getcompanion-ai/feynman) (MIT). The Pi runtime and skills architecture, the install pipeline and many runtime patches come from upstream.
 
-The context-first skills, explicit workflow handoffs, full-funnel framing, and recurring-loop design were inspired by [Corey Haines' Marketing Skills](https://github.com/coreyhaines31/marketingskills) (MIT), then adapted for a local, artifact-driven multi-agent runtime with stricter provenance and human-approval boundaries.
+The context-first skills, workflow handoffs, full-funnel framing and recurring-loop design were inspired by [Corey Haines' Marketing Skills](https://github.com/coreyhaines31/marketingskills) (MIT), then adapted for a local, artifact-driven multi-agent runtime with stricter provenance and human-approval boundaries.

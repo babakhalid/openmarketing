@@ -1,3 +1,5 @@
+// Locates external executables (pandoc, mmdc, Chrome, brew) on PATH or in common install locations.
+
 import { execFile, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, delimiter } from "node:path";
@@ -78,7 +80,7 @@ export function resolveExecutable(name: string, fallbackPaths: string[] = []): s
 	return undefined;
 }
 
-export async function resolveExecutableAsync(name: string, fallbackPaths: string[] = []): Promise<string | undefined> {
+async function resolveExecutableAsync(name: string, fallbackPaths: string[] = []): Promise<string | undefined> {
 	const fallback = findInFallbackPaths(fallbackPaths);
 	if (fallback) {
 		return fallback;

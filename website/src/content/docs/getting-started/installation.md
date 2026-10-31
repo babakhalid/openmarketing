@@ -136,13 +136,13 @@ These installers download the bundled `skills/` and `prompts/` trees plus the re
 The one-line installer already targets the latest tagged release. To pin an exact version, pass it explicitly:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.sh | bash -s -- 0.1.0
+curl -fsSL https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.sh | bash -s -- 0.1.1
 ```
 
 On Windows:
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.ps1))) -Version 0.1.0
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.ps1))) -Version 0.1.1
 ```
 
 ## Post-install setup

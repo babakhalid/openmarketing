@@ -1,3 +1,5 @@
+// The startup header: logo, model, session, agents and the marketing workflows, shown on session start.
+
 import { readdir } from "node:fs/promises";
 import { cpus, homedir, totalmem } from "node:os";
 import { execSync } from "node:child_process";

@@ -1,3 +1,6 @@
+// Meta Ads tools (campaigns, ad sets, ads, insights, creative upload, pause, budgets) over the Meta CLI.
+// No tool here launches an ad: uploads only add an asset, and launching is left to the user.
+
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 

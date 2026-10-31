@@ -12,6 +12,7 @@ export const fonts = {
 };
 
 // 1080x1920 canvas. Safe zone keeps text clear of platform UI (top bar, right rail, caption/CTA footer).
+/** @public Part of the template's toolkit for agent-written compositions. */
 export const canvas = { width: 1080, height: 1920, fps: 30 };
 export const safe = { top: 220, bottom: 380, side: 90 };
 

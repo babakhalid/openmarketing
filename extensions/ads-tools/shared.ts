@@ -1,3 +1,5 @@
+// Helpers shared by the ads tools: running a CLI with a timeout and shaping tool results.
+
 import { spawn } from "node:child_process";
 
 export type CliResult = {

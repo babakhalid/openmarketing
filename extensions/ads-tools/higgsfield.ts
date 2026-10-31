@@ -1,3 +1,5 @@
+// Higgsfield tools (balance, workspaces, image and video generation) that shell out to the Higgsfield CLI.
+
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 

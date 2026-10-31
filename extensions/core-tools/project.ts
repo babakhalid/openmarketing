@@ -1,3 +1,5 @@
+// /init (scaffold a marketing workspace) and /outputs (browse generated artifacts).
+
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join, relative, resolve as resolvePath } from "node:path";
 

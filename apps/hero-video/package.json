@@ -1,20 +1,25 @@
 {
-  "name": "openmarketing-hero-video",
-  "private": true,
-  "description": "The 16:9 hero video for openmarketing.dev, built with Remotion. Renders to website/public/hero.mp4.",
-  "scripts": {
-    "browser": "remotion browser ensure && ditto node_modules/.remotion/chrome-headless-shell/mac-arm64/chrome-headless-shell-mac-arm64 ~/.cache/openmarketing-hero-chrome",
-    "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Hero out/hero.mp4 --codec=h264 --crf=20",
-    "still": "remotion still src/index.ts Hero out/poster.png --frame=405"
-  },
-  "dependencies": {
-    "@fontsource-variable/jetbrains-mono": "5.3.0",
-    "@remotion/cli": "4.0.539",
-    "@remotion/motion-blur": "4.0.539",
-    "@remotion/noise": "4.0.539",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "remotion": "4.0.539"
-  }
+	"name": "openmarketing-hero-video",
+	"private": true,
+	"description": "The 16:9 hero video for openmarketing.dev, built with Remotion. Renders to website/public/hero.mp4.",
+	"scripts": {
+		"browser": "remotion browser ensure && ditto node_modules/.remotion/chrome-headless-shell/mac-arm64/chrome-headless-shell-mac-arm64 ~/.cache/openmarketing-hero-chrome",
+		"studio": "remotion studio src/index.ts",
+		"render": "remotion render src/index.ts Hero out/hero-master.mp4 --codec=h264 --crf=20",
+		"sound": "python3 scripts/sfx.py out/hero-sound.wav && ffmpeg -y -loglevel error -i out/hero-master.mp4 -i out/hero-sound.wav -map 0:v -map 1:a -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=9 -ar 48000 -c:a aac -b:a 192k -shortest -movflags +faststart out/hero-sound.mp4",
+		"web": "ffmpeg -y -loglevel error -i out/hero-master.mp4 -an -c:v libx264 -crf 23 -preset slow -pix_fmt yuv420p -movflags +faststart ${WEB_OUT:-../../website/public}/hero.mp4 && ffmpeg -y -loglevel error -i out/hero-master.mp4 -an -c:v libvpx-vp9 -crf 38 -b:v 0 -row-mt 1 ${WEB_OUT:-../../website/public}/hero.webm && ffmpeg -y -loglevel error -ss 7.2 -i out/hero-master.mp4 -frames:v 1 -q:v 3 ${WEB_OUT:-../../website/public}/hero-poster.jpg",
+		"gif": "ffmpeg -y -loglevel error -i out/hero-master.mp4 -vf \"fps=12,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle\" ../../assets/openmarketing-demo.gif",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@fontsource-variable/jetbrains-mono": "5.3.0",
+		"@remotion/cli": "4.0.539",
+		"react": "19.1.0",
+		"react-dom": "19.1.0",
+		"remotion": "4.0.539"
+	},
+	"devDependencies": {
+		"@types/react": "19.1.8",
+		"typescript": "5.8.3"
+	}
 }

@@ -1,3 +1,5 @@
+// Installs pandoc (via Homebrew or winget) for report preview and PDF export.
+
 import { spawnSync } from "node:child_process";
 
 import { BREW_FALLBACK_PATHS, PANDOC_FALLBACK_PATHS, resolveExecutable } from "../system/executables.js";

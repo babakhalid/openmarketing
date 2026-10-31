@@ -1,36 +1,28 @@
-# Astro + React + TypeScript + shadcn/ui
+# openmarketing.dev
 
-This is a template for a new Astro project with React, TypeScript, and shadcn/ui.
+The OpenMarketing website and docs: an [Astro](https://astro.build) static site styled with Tailwind CSS v4 in the desktop app's colors. It is deployed on Vercel from this folder; every push to `main` goes to production.
 
-## Adding components
+## Run
 
-To add components to your app, run the following command:
-
-```bash
-npx shadcn@latest add button
+```sh
+cd website
+npm install
+npm run dev       # http://localhost:4321
+npm run build     # copies the installers, then builds to dist/
 ```
 
-This will place the ui components in the `src/components` directory.
+## Layout
 
-## Using components
+| Path | Role |
+| --- | --- |
+| `src/pages/index.astro` | The homepage: hero video, workflow steps, agents, tools and install |
+| `src/pages/docs/` | Renders the docs collection (`[...slug].astro`) and the docs index |
+| `src/content/docs/` | The docs, one Markdown file per page. Frontmatter needs `title`, `description`, `section` and `order` (see `src/content/config.ts`) |
+| `src/layouts/main.astro` | Shared page shell: navigation, footer, SEO and Open Graph tags |
+| `src/styles/global.css` | Color tokens (dark and light), typography and the Tailwind setup |
+| `public/` | Static files: the hero video (`hero.mp4`, `hero.webm`, `hero-poster.jpg`, made in `apps/hero-video`), app screenshots and the installers |
 
-To use the components in your app, import them in an `.astro` file:
+## Notes
 
-```astro
----
-import { Button } from "@/components/ui/button"
----
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Astro App</title>
-  </head>
-  <body>
-    <div class="grid h-screen place-items-center content-center">
-      <Button>Button</Button>
-    </div>
-  </body>
-</html>
-```
+- `public/install`, `install.ps1`, `install-skills` and `install-skills.ps1` are copies of `scripts/install/*`, refreshed by `npm run build` through `scripts/sync-website-installers.mjs`. Edit the originals, not these copies.
+- To add a docs page, create a Markdown file under `src/content/docs/<section>/` with the frontmatter above, then add it to the `sections` list at the top of `src/pages/docs/[...slug].astro` so it shows in the sidebar.

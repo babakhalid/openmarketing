@@ -117,6 +117,10 @@ const RESEARCH_MODEL_FAMILY_PREFERENCES: ResearchModelPreference[] = [
 	{
 		matches: (model) => model.provider === "github-copilot" && /^gpt-\d+(?:\.\d+)*(?:-.+)?$/i.test(model.id),
 		reason: "newest GPT model available through GitHub Copilot",
+	},	// Without this entry, a Gemini-only account sorted alphabetically and picked deep-research-*.
+	{
+		matches: (model) => model.provider === "google" && /^gemini-\d/i.test(model.id) && !isSpecializedGeminiId(model.id),
+		reason: "newest authenticated non-Pro Gemini model for marketing work",
 	},
 ];
 
@@ -302,7 +306,7 @@ function currentFamilyPreference(model: ModelRecord): CurrentFamilyPreference | 
 			family: `${model.provider}/gemini`,
 			version: google[1]!.split(".").map(Number),
 			qualityRank: geminiQualityRank(suffix),
-			reason: "newest authenticated non-Pro Gemini model for broad research work",
+			reason: "newest authenticated non-Pro Gemini model for broad marketing work",
 		};
 	}
 
@@ -336,8 +340,19 @@ function openAiGptQualityRank(suffix: string | undefined): number {
 	return 5;
 }
 
+// Agent, realtime, image and codename variants are not general chat models.
+function isSpecializedGeminiSuffix(suffix: string | undefined): boolean {
+	if (!suffix) return false;
+	return !/^(?:flash|flash-lite|lite)(?:-preview(?:-[\w-]+)?)?$|^preview(?:-[\w-]+)?$/i.test(suffix);
+}
+
+function isSpecializedGeminiId(id: string): boolean {
+	return isSpecializedGeminiSuffix(/^gemini-\d+(?:\.\d+)*(?:-(.+))?$/i.exec(id)?.[1]);
+}
+
 function geminiQualityRank(suffix: string | undefined): number {
 	if (suffix?.includes("pro")) return 99;
+	if (isSpecializedGeminiSuffix(suffix)) return 9;
 	if (suffix?.includes("flash-lite")) return 6;
 	if (suffix?.includes("flash")) return 5;
 	if (suffix?.includes("lite")) return 7;
@@ -405,7 +420,7 @@ export async function chooseRecommendedModel(authPath: string): Promise<{ spec: 
 
 	return {
 		spec: modelSpec(preferred),
-		reason: researchPreferenceReason(preferred) ?? currentFamilyReason(preferred) ?? "best currently authenticated fallback for research work",
+		reason: researchPreferenceReason(preferred) ?? currentFamilyReason(preferred) ?? "best currently authenticated fallback for marketing work",
 	};
 }
 
@@ -425,7 +440,7 @@ export function buildModelStatusSnapshotFromRecords(
 		? (() => {
 			return {
 				spec: modelSpec(preferred),
-				reason: researchPreferenceReason(preferred) ?? currentFamilyReason(preferred) ?? "best currently authenticated fallback for research work",
+				reason: researchPreferenceReason(preferred) ?? currentFamilyReason(preferred) ?? "best currently authenticated fallback for marketing work",
 			};
 		})()
 		: undefined;
@@ -470,7 +485,7 @@ export function buildModelStatusSnapshotFromRecords(
 	if (nonProAvailable.length === 0) {
 		if (proClassAvailableCount > 0) {
 			guidance.push("No approved authenticated Pi models are available. Premium Pro-class models are disabled in OpenMarketing.");
-			guidance.push("Configure an approved research model, then rerun `openmarketing model list`.");
+			guidance.push("Configure an approved model, then rerun `openmarketing model list`.");
 		} else {
 			guidance.push("No authenticated Pi models are available yet.");
 			guidance.push(
@@ -480,17 +495,17 @@ export function buildModelStatusSnapshotFromRecords(
 		}
 	} else if (!current) {
 		if (recommended) {
-			guidance.push(`No default research model is set. Recommended: ${recommended.spec}.`);
+			guidance.push(`No default model is set. Recommended: ${recommended.spec}.`);
 		} else {
-			guidance.push("No default research model is set, and no approved research model is available for automatic selection.");
+			guidance.push("No default model is set, and no approved model is available for automatic selection.");
 		}
 		guidance.push("Run `openmarketing model set <provider/model>` after choosing from `openmarketing model list`.");
 	} else if (!currentValid) {
 		guidance.push(`Configured default model is unavailable: ${current}.`);
 		if (recommended) {
-			guidance.push(`Switch to the current research recommendation: ${recommended.spec}.`);
+			guidance.push(`Switch to the recommended model: ${recommended.spec}.`);
 		} else {
-			guidance.push("Configure an approved research model before using automatic model selection.");
+			guidance.push("Configure an approved model before using automatic model selection.");
 		}
 	}
 

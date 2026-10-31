@@ -29,21 +29,13 @@ export type PromptSelectOption<T = string> = {
 	hint?: string;
 };
 
-export function nonInteractiveTerminalMessage(env: NodeJS.ProcessEnv = process.env, platform = process.platform): string {
+function nonInteractiveTerminalMessage(env: NodeJS.ProcessEnv = process.env, platform = process.platform): string {
 	return [
 		"openmarketing setup requires an interactive terminal.",
 		platform === "win32" && env.MSYSTEM
 			? "Git Bash's default window is not one Node can prompt in: run `winpty openmarketing setup`, or use PowerShell or Windows Terminal."
 			: "Run it yourself in a terminal window, not through a script or an AI coding agent.",
 		"To skip the prompts, set your provider's API key variable (for example OPENAI_API_KEY or ANTHROPIC_API_KEY) and run `openmarketing model set <provider/model>`.",
-	].join("\n");
-}
-
-export function noModelMessage(promptGiven = false): string {
-	return [
-		"No model is set up yet, so OpenMarketing can't answer.",
-		"Sign in with `openmarketing model login`, or set ANTHROPIC_API_KEY or OPENAI_API_KEY, then run openmarketing again.",
-		...(promptGiven ? ["Your question was not sent."] : []),
 	].join("\n");
 }
 

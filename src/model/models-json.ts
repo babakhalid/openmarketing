@@ -1,3 +1,5 @@
+// Reads and edits Pi's models.json: custom providers, base URLs and API-key references.
+
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 

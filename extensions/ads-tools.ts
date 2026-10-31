@@ -1,3 +1,6 @@
+// Pi extension with the marketing tools: Higgsfield creative, Meta Ads, cross-model calls,
+// guided decision checkpoints (ask_user) and the video studio.
+
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 import { registerHiggsfieldTools } from "./ads-tools/higgsfield.js";

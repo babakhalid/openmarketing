@@ -1,3 +1,5 @@
+// /openmarketing-model: view and switch the default model from inside a session.
+
 import { type Dirent, existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, join, resolve } from "node:path";

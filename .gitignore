@@ -28,8 +28,11 @@ experiments/*
 assets/Video references/
 
 # Astro build cache
-website/.astro/
+.astro/
 
 # Vercel project link
 .vercel
 .env*
+
+# macOS
+.DS_Store

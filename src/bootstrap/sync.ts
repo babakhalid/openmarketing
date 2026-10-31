@@ -1,3 +1,6 @@
+// Copies the bundled agents, skills, themes and settings into the user's agent directory on startup.
+// Hashes of what was last applied are kept, so files the user has edited are skipped, not overwritten.
+
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";

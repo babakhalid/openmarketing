@@ -1,3 +1,5 @@
+// Model spec parsing, thinking levels and normalization of the user's Pi settings file.
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 

@@ -1,6 +1,6 @@
 {
   "name": "openmarketing",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open-source AI marketing operating system for technical founders — research, positioning, launch, acquisition, measurement, and iteration. Built on Pi.",
   "author": {
     "name": "Youmake",
@@ -55,7 +55,8 @@
     "start": "tsx src/index.ts",
     "start:dist": "node ./bin/openmarketing.js",
     "test": "node --import tsx --test --test-concurrency=1 tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "unused": "knip"
   },
   "keywords": [
     "pi-package",
@@ -86,7 +87,8 @@
     "@earendil-works/pi-ai": "1.4.0",
     "@earendil-works/pi-coding-agent": "1.4.0",
     "@sinclair/typebox": "^0.34.49",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "undici": "8.10.2"
   },
   "overrides": {
     "basic-ftp": "5.3.0",
@@ -113,6 +115,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "knip": "5.88.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },

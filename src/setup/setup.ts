@@ -1,3 +1,5 @@
+// `openmarketing setup`: the guided first-run flow for model access, search and preview tooling.
+
 import { dirname } from "node:path";
 
 import { getPiWebAccessStatus } from "../pi/web-access.js";

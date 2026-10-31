@@ -1,3 +1,5 @@
+// /help: the grouped command reference.
+
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
 	extensionCommandSpecs,

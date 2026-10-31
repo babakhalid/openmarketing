@@ -43,7 +43,7 @@ export function parseReply(question: Question, reply: string | undefined): Answe
 	return { ...base, choices: chosen.map((o) => o.id), labels: chosen.map((o) => o.label), ...(custom.length ? { custom: custom.join("\n") } : {}) };
 }
 
-export function summarize(title: string, answers: Answer[], interactive: boolean): string {
+function summarize(title: string, answers: Answer[], interactive: boolean): string {
 	const lines = answers.map((a) => {
 		const picked = a.labels.length ? a.labels.join(" + ") : "(no option)";
 		const own = a.custom ? `${a.labels.length ? " — plus, in their words:" : " — in their words:"} "${a.custom}"` : "";

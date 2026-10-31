@@ -203,14 +203,9 @@ test("installPackageSources filters noisy npm chatter but preserves meaningful o
 		npmCommand: [process.execPath, scriptPath],
 	});
 
-	let stdout = "";
+	// Only stderr is captured: the test runner reports results over this process's stdout.
 	let stderr = "";
-	const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 	const originalStderrWrite = process.stderr.write.bind(process.stderr);
-	(process.stdout.write as unknown as (chunk: string | Uint8Array) => boolean) = ((chunk: string | Uint8Array) => {
-		stdout += chunk.toString();
-		return true;
-	}) as typeof process.stdout.write;
 	(process.stderr.write as unknown as (chunk: string | Uint8Array) => boolean) = ((chunk: string | Uint8Array) => {
 		stderr += chunk.toString();
 		return true;
@@ -221,11 +216,10 @@ test("installPackageSources filters noisy npm chatter but preserves meaningful o
 		assert.deepEqual(result.installed, ["npm:test-visible-package"]);
 		assert.deepEqual(result.skipped, []);
 	} finally {
-		process.stdout.write = originalStdoutWrite;
 		process.stderr.write = originalStderrWrite;
 	}
 
-	const combined = `${stdout}\n${stderr}`;
+	const combined = stderr;
 	assert.match(combined, /visible stdout line/);
 	assert.match(combined, /visible stderr line/);
 	assert.doesNotMatch(combined, /node-domexception/);

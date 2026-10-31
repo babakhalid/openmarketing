@@ -1,3 +1,5 @@
+// Entry point for `openmarketing`: checks the Node.js version, then hands off to cli.ts.
+
 import { ensureSupportedNodeVersion } from "./system/node-version.js";
 
 async function run(): Promise<void> {

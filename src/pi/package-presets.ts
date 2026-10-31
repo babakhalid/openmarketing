@@ -1,3 +1,5 @@
+// The Pi packages OpenMarketing installs by default, the optional presets, and packages it removes.
+
 import type { PackageSource } from "@earendil-works/pi-coding-agent";
 
 export const CORE_PACKAGE_SOURCES = [
@@ -33,7 +35,7 @@ export const INCOMPATIBLE_PACKAGE_SOURCES: readonly string[] = ["npm:@kaiserlich
 
 export const MAX_NATIVE_PACKAGE_NODE_MAJOR = 24;
 
-export const OPTIONAL_PACKAGE_PRESETS = {
+const OPTIONAL_PACKAGE_PRESETS = {
 	"generative-ui": {
 		description: "Interactive Glimpse UI widgets.",
 		sources: ["npm:pi-generative-ui"],

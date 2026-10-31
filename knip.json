@@ -1,0 +1,87 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"workspaces": {
+		".": {
+			"entry": [
+				"src/pi/pi-cli-wrapper.ts",
+				"src/system/promise-polyfill.ts",
+				"extensions/*.ts",
+				"scripts/*.mjs",
+				"skills/*/scripts/*.mjs",
+				"tests/*.test.ts"
+			],
+			"project": [
+				"src/**/*.ts",
+				"extensions/**/*.ts",
+				"scripts/**/*.mjs",
+				"skills/*/scripts/*.mjs",
+				"metadata/*.mjs",
+				"logo.mjs",
+				"tests/**/*.ts"
+			],
+			"ignoreDependencies": [
+				"@earendil-works/pi-tui"
+			]
+		},
+		"apps/desktop": {
+			"entry": [
+				"electron/*.{mjs,cjs,js}",
+				"scripts/*.mjs"
+			],
+			"project": [
+				"src/**/*.{ts,tsx}",
+				"electron/**/*",
+				"scripts/**/*.mjs"
+			]
+		},
+		"apps/hero-video": {
+			"entry": [
+				"src/index.ts",
+				"remotion.config.ts"
+			],
+			"project": [
+				"src/**/*.{ts,tsx}"
+			],
+			"ignoreBinaries": [
+				"ditto",
+				"python3",
+				"ffmpeg"
+			]
+		},
+		"skills/video-editing/studio-template": {
+			"entry": [
+				"src/index.ts",
+				"remotion.config.ts"
+			],
+			"project": [
+				"src/**/*.{ts,tsx}"
+			],
+			"ignoreDependencies": [
+				"@remotion/media-utils",
+				"@remotion/motion-blur",
+				"react",
+				"react-dom",
+				"@types/react"
+			],
+			"ignoreBinaries": [
+				"remotion"
+			]
+		},
+		"website": {
+			"project": [
+				"src/**/*.{ts,tsx,astro}"
+			],
+			"ignoreDependencies": [
+				"@fontsource-variable/jetbrains-mono",
+				"shadcn",
+				"tailwindcss",
+				"tw-animate-css"
+			]
+		}
+	},
+	"ignoreExportsUsedInFile": true,
+	"rules": {
+		"types": "off",
+		"duplicates": "off"
+	}
+}

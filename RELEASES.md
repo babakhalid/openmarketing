@@ -4,6 +4,20 @@ This file is the public release history for OpenMarketing. Keep entries user-fac
 
 GitHub release notes are generated from the matching `## vX.Y.Z` section in this file.
 
+## v0.1.1 - 2026-10-31
+
+### Fixes
+
+- The standalone installer works: the native bundle builds again (its self-check now verifies Node's built-in SQLite, which the memory package uses), and a bundled install no longer needs Node.js or npm on the machine to start a chat.
+- With only a Gemini key, the default model is now the newest Gemini Flash model instead of a deep-research agent model; specialized Gemini variants (computer use, live, image) are no longer picked automatically.
+- Package-manager output is written to stderr, so it can't interfere with the desktop app's connection to the agent.
+- `undici` is declared as a dependency instead of being borrowed from Pi.
+
+### Project
+
+- The README shows the product in motion and documents the desktop app, the `/video` workflow and all nine agents; CONTRIBUTING has a project map and the full set of checks.
+- Unused code, dependencies and leftover assets were removed, and `npm run unused` keeps it that way.
+
 ## v0.1.0 - 2026-07-22
 
 Initial release of OpenMarketing — an open-source marketing operating system for technical founders.

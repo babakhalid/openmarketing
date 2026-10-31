@@ -1,3 +1,5 @@
+// `openmarketing status` and `openmarketing doctor`: model, auth, packages and tooling health checks.
+
 import { readFileSync } from "node:fs";
 
 import { formatPiWebAccessDoctorLines, getPiWebAccessStatus } from "../pi/web-access.js";
@@ -59,7 +61,7 @@ export type OpenMarketingStatusSnapshot = {
 	missingPiBits: string[];
 };
 
-export async function collectStatusSnapshot(options: DoctorOptions): Promise<OpenMarketingStatusSnapshot> {
+async function collectStatusSnapshot(options: DoctorOptions): Promise<OpenMarketingStatusSnapshot> {
 	const pandocPath = resolveExecutable("pandoc", PANDOC_FALLBACK_PATHS);
 	const browserPath = process.env.PUPPETEER_EXECUTABLE_PATH ?? resolveExecutable("google-chrome", BROWSER_FALLBACK_PATHS);
 	const missingPiBits = validatePiInstallation(options.appRoot);

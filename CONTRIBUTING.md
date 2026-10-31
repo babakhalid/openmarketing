@@ -9,17 +9,25 @@ OpenMarketing is a founder-first marketing operating system built on Pi. This gu
 - Repo agent contract: [AGENTS.md](AGENTS.md)
 - Issues: https://github.com/babakhalid/openmarketing/issues
 
-## What Goes Where
+## Project Map
 
-- CLI/runtime code: `src/`
-- Bundled prompt templates: `prompts/`
-- Bundled Pi skills: `skills/`
-- Bundled Pi subagent prompts: `.openmarketing/agents/`
-- Docs site: `website/`
-- Build/release scripts: `scripts/`
-- Generated marketing artifacts: `outputs/`, `notes/`
+| Path | What lives there |
+| --- | --- |
+| `bin/openmarketing.js` | The `openmarketing` / `om` launcher: Node version guard, then `dist/index.js` |
+| `src/` | The CLI: argument parsing (`cli.ts`), setup and model login (`setup/`, `model/`), launching and patching Pi (`pi/`), the desktop app's account service (`desktop/bridge.ts`) |
+| `extensions/` | Pi extensions loaded into every session. `core-tools/` adds the core commands and startup header; `ads-tools/` adds the marketing tools (Higgsfield, Meta Ads, `ask_user` checkpoints, cross-model calls, the video studio) |
+| `prompts/` | One Markdown prompt per workflow (`/start`, `/research`, `/video`, …). Frontmatter `topLevelCli: true` also exposes it as `openmarketing <name>` |
+| `skills/` | Pi skills: reusable capabilities with their references and scripts. `skills/video-editing/studio-template/` is the Remotion project the video tools copy for the agent |
+| `.openmarketing/` | Bundled subagents (`agents/`), the system prompt, default settings and the theme, synced into `~/.openmarketing/agent/` on startup |
+| `metadata/` | Reads prompt frontmatter into the command list shared by the CLI, help and docs |
+| `scripts/` | Build, packaging and release scripts, the installers (`install/`) and the Pi source patches (`lib/*-patch.mjs`) |
+| `tests/` | Node test runner suites for the CLI, patches, prompts and tools |
+| `apps/desktop/` | The Electron + React desktop app ([README](apps/desktop/README.md)) |
+| `apps/hero-video/` | The Remotion source of the website hero video and the README demo ([README](apps/hero-video/README.md)) |
+| `website/` | The Astro site and docs at openmarketing.dev ([README](website/README.md)) |
+| `outputs/`, `notes/`, `papers/`, `experiments/` | Empty workspace folders; generated artifacts are git-ignored |
 
-If you need to change how bundled subagents behave, edit `.openmarketing/agents/*.md`. Do not duplicate that behavior in `AGENTS.md`.
+To change how a bundled subagent behaves, edit `.openmarketing/agents/*.md`. Do not duplicate that behavior in `AGENTS.md`.
 
 ## Before You Open a PR
 
@@ -38,7 +46,10 @@ npm install
 npm test
 npm run typecheck
 npm run build
+npm run unused      # knip: unused files, exports and dependencies across every package
 ```
+
+If you changed an app, also run its own check: `npm run typecheck` in `apps/desktop` or `apps/hero-video`.
 
 5. If you changed the docs site, also validate the website:
 
@@ -86,6 +97,18 @@ npm run build
   - `website/package.json`
   - `scripts/check-node-version.mjs`
   - install docs in `README.md` and `website/src/content/docs/getting-started/installation.md`
+
+### Publishing
+
+Releases come from the `Publish and Release` GitHub workflow: when `package.json` holds a version that is not yet released, it publishes to npm with provenance, builds the native bundles, and creates the GitHub release from the matching `## vX.Y.Z` section in `RELEASES.md`. The one-line installers download those bundles, so they only work once a GitHub release exists.
+
+For the workflow to publish, configure npm trusted publishing for repository `babakhalid/openmarketing` and workflow `publish.yml` (or add a granular `NPM_TOKEN` secret). `repository.url` in `package.json` must match the public repository exactly. As a local fallback, publish while signed in to the npm account that owns the package:
+
+```bash
+npm whoami
+npm pack --dry-run
+npm publish
+```
 
 ## AI-Assisted Contributions
 

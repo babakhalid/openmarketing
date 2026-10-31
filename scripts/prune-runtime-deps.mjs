@@ -72,28 +72,6 @@ function pruneKoffi(nodeModulesRoot) {
 	}
 }
 
-function pruneBetterSqlite3(nodeModulesRoot) {
-	const pkgRoot = join(nodeModulesRoot, "better-sqlite3");
-	if (!existsSync(pkgRoot)) return;
-
-	removePath(join(pkgRoot, "deps"));
-	removePath(join(pkgRoot, "src"));
-	removePath(join(pkgRoot, "binding.gyp"));
-
-	const buildRoot = join(pkgRoot, "build");
-	const releaseRoot = join(buildRoot, "Release");
-	if (existsSync(releaseRoot)) {
-		for (const entry of readdirSync(releaseRoot, { withFileTypes: true })) {
-			if (entry.name === "better_sqlite3.node") continue;
-			removePath(join(releaseRoot, entry.name));
-		}
-	}
-
-	for (const entry of ["Makefile", "binding.Makefile", "config.gypi", "deps", "gyp-mac-tool", "test_extension.target.mk", "better_sqlite3.target.mk"]) {
-		removePath(join(buildRoot, entry));
-	}
-}
-
 function pruneLiteparse(nodeModulesRoot) {
 	const pkgRoot = join(nodeModulesRoot, "@llamaindex", "liteparse");
 	if (!existsSync(pkgRoot)) return;
@@ -123,7 +101,6 @@ if (!existsSync(nodeModulesDir)) {
 
 walkAndPrune(nodeModulesDir);
 pruneKoffi(nodeModulesDir);
-pruneBetterSqlite3(nodeModulesDir);
 pruneLiteparse(nodeModulesDir);
 prunePiCodingAgent(nodeModulesDir);
 pruneMermaid(nodeModulesDir);

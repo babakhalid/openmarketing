@@ -1,3 +1,5 @@
+// `openmarketing search`: shows and sets the web search provider used by pi-web-access.
+
 import {
 	getPiWebAccessStatus,
 	savePiWebAccessConfig,

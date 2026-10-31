@@ -1,3 +1,7 @@
+// Command-line front end. Parses arguments, runs the subcommands (setup, model, search, status,
+// doctor, packages, update, desktop-bridge, …) and otherwise launches the Pi chat with OpenMarketing's
+// prompts, skills, agents and extensions.
+
 import "dotenv/config";
 
 import { existsSync, readFileSync } from "node:fs";

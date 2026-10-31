@@ -36,7 +36,7 @@ test("buildModelStatusSnapshotFromRecords emits guidance when no default model i
 
 	assert.equal(snapshot.currentValid, false);
 	assert.equal(snapshot.current, undefined);
-	assert.ok(snapshot.guidance.some((line) => line.includes("No default research model")));
+	assert.ok(snapshot.guidance.some((line) => line.includes("No default model")));
 	assert.ok(snapshot.guidance.some((line) => line.includes("openmarketing model set <provider/model>")));
 	assert.ok(snapshot.guidance.some((line) => line.includes("openmarketing model list")));
 	assert.ok(snapshot.guidance.every((line) => !line.includes("openmarketing setup model")));
@@ -300,4 +300,23 @@ test("buildModelStatusSnapshotFromRecords sets currentValid false when current m
 
 	assert.equal(snapshot.currentValid, false);
 	assert.equal(snapshot.current, "anthropic/claude-opus-4-6");
+});
+
+test("a Gemini-only account recommends the newest Flash model, not deep-research or specialized variants", () => {
+	const ids = [
+		"deep-research-max-preview-04-2026",
+		"deep-research-preview-04-2026",
+		"gemini-2.5-computer-use-preview-10-2025",
+		"gemini-2.5-flash",
+		"gemini-3.1-flash-lite-image",
+		"gemini-3.1-flash-live-preview",
+		"gemini-3.1-pro-preview",
+		"gemini-3.8-flash",
+		"gemini-4-argon",
+		"gemma-4-31b-it",
+	];
+	const models = ids.map((id) => ({ provider: "google", id }));
+	const snapshot = buildModelStatusSnapshotFromRecords(models, models, undefined);
+
+	assert.equal(snapshot.recommended, "google/gemini-3.8-flash");
 });

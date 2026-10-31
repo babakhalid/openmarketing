@@ -1,3 +1,5 @@
+// Promise.withResolvers for Node.js versions that lack it; preloaded into the Pi process by launch.ts.
+
 type PromiseWithResolvers<T> = {
 	promise: Promise<T>;
 	resolve: (value: T | PromiseLike<T>) => void;

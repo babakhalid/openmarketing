@@ -91,7 +91,7 @@ const LOCAL_API_KEY_SETUPS: ApiKeyProviderInfo[] = MODEL_API_KEY_PROVIDERS.filte
 
 // Every provider Pi can sign in to with an API key (its own list, labels and
 // prompts), plus OpenMarketing's local and custom endpoint setups.
-export async function listApiKeyProviders(authPath: string): Promise<ApiKeyProviderInfo[]> {
+async function listApiKeyProviders(authPath: string): Promise<ApiKeyProviderInfo[]> {
 	const envVars = new Map(MODEL_API_KEY_PROVIDERS.map((provider) => [provider.id, provider.envVar]));
 	const piProviders = (await createModelRuntime(authPath))
 		.getProviders()
@@ -212,7 +212,7 @@ const LOCAL_PROVIDER_IDS = new Set(["ollama", "lm-studio", "vllm", "llama.cpp", 
 
 // Reads models.json through Pi, so its comments, BOM handling, and per-model
 // baseUrl overrides count the same way they do at launch.
-export async function isLocalModelProvider(authPath: string, providerId: string): Promise<boolean> {
+async function isLocalModelProvider(authPath: string, providerId: string): Promise<boolean> {
 	if (!providerId) {
 		return false;
 	}
@@ -1008,7 +1008,7 @@ async function describeUnavailableModelSpec(authPath: string, spec: string): Pro
 	if (known) {
 		const knownSpec = `${known.provider}/${known.id}`;
 		if (isProClassModelSpec(knownSpec)) {
-			return `Pro-class model disabled: ${knownSpec}. Choose an approved research model.`;
+			return `Pro-class model disabled: ${knownSpec}. Choose an approved model.`;
 		}
 		if (await isLocalModelProvider(authPath, known.provider)) {
 			return `${knownSpec} has no API key. Pi only lists a local provider when it has one: add "apiKey": "local" to the ${known.provider} provider in ${getModelsJsonPath(authPath)}.`;
@@ -1035,28 +1035,7 @@ export async function setDefaultModelSpec(settingsPath: string, authPath: string
 	const settings = SettingsManager.create(process.cwd(), dirname(settingsPath));
 	settings.setDefaultModelAndProvider(provider!, rest.join("/"));
 	await settings.flush();
-	printSuccess(`Research default model set to ${resolvedSpec}`);
-}
-
-export async function selectDefaultModel(settingsPath: string, authPath: string): Promise<void> {
-	const status = await collectModelStatus(settingsPath, authPath);
-	if (status.availableModels.length === 0) {
-		printWarning("No authenticated Pi models are currently available.");
-		for (const line of status.guidance) {
-			printInfo(line);
-		}
-		return;
-	}
-	const spec = await promptSelect(
-		"Choose the default research model:",
-		status.availableModels.map((value) => ({
-			value,
-			label: value,
-			hint: value === status.current ? "current" : value === status.recommended ? "recommended" : undefined,
-		})),
-		status.current ?? status.recommended,
-	);
-	await setDefaultModelSpec(settingsPath, authPath, spec);
+	printSuccess(`Default model set to ${resolvedSpec}`);
 }
 
 export async function runModelSetup(settingsPath: string, authPath: string): Promise<void> {

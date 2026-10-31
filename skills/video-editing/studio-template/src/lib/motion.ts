@@ -31,6 +31,7 @@ export function ramp(frame: number, from: number, to: number, out: [number, numb
 }
 
 // Slow continuous push-in so no frame is ever static (refs never hold a dead frame).
+/** @public Part of the template's toolkit for agent-written compositions. */
 export function drift(frame: number, durationInFrames: number, from = 1, to = 1.06) {
 	return interpolate(frame, [0, durationInFrames], [from, to], { easing: ease.inOut, extrapolateRight: "clamp" });
 }

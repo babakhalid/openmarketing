@@ -1,3 +1,5 @@
+// Providers that can be configured with a plain API key, with the env variable each one reads.
+
 export type ApiKeyProviderInfo = {
 	id: string;
 	label: string;

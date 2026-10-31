@@ -306,9 +306,9 @@ function validateBundle(bundleRoot, target) {
 			? resolve(bundleRoot, "node", "node.exe")
 			: resolve(bundleRoot, "node", "bin", "node");
 
-	run(nodeExecutable, ["-e", "require('./app/.openmarketing/npm/node_modules/better-sqlite3'); console.log('better-sqlite3 ok')"], {
-		cwd: bundleRoot,
-	});
+	// pi-memory stores memories with node:sqlite, so the bundled Node must provide it.
+	run(nodeExecutable, ["-e", "require('node:sqlite'); console.log('node:sqlite ok')"], { cwd: bundleRoot });
+	run(nodeExecutable, [resolve(bundleRoot, "app", "bin", "openmarketing.js"), "--version"], { cwd: bundleRoot });
 }
 
 function packBundle(bundleRoot, target, outDir) {

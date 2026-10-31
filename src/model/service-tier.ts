@@ -3,7 +3,7 @@ import { dirname } from "node:path";
 
 import { readJsonFile } from "../config/json-file.js";
 
-export const OPENMARKETING_SERVICE_TIERS = [
+const OPENMARKETING_SERVICE_TIERS = [
 	"auto",
 	"default",
 	"flex",
@@ -47,10 +47,6 @@ export function setConfiguredServiceTier(settingsPath: string, tier: OpenMarketi
 
 	mkdirSync(dirname(settingsPath), { recursive: true });
 	writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf8");
-}
-
-export function resolveActiveServiceTier(settingsPath: string): OpenMarketingServiceTier | undefined {
-	return normalizeServiceTier(process.env.OPENMARKETING_SERVICE_TIER) ?? getConfiguredServiceTier(settingsPath);
 }
 
 export function resolveProviderServiceTier(

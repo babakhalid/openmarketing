@@ -11,12 +11,12 @@ function rgb(red: number, green: number, blue: number): string {
 // Modern blue-forward palette. Blue is the primary accent (logo, sections,
 // panel bars). Sky highlights wordmark glyphs. Sage stays for command names so
 // they pop against the blue scaffolding without visual clash.
-export const INK = rgb(220, 226, 234);
+const INK = rgb(220, 226, 234);
 const STONE = rgb(157, 169, 184);
 export const ASH = rgb(120, 134, 156);
 const DARK_ASH = rgb(70, 84, 110);
 export const SAGE = rgb(167, 192, 128);
-export const BLUE = rgb(96, 165, 250);
+const BLUE = rgb(96, 165, 250);
 const SKY = rgb(125, 211, 252);
 const ROSE = rgb(244, 114, 128);
 
@@ -37,10 +37,6 @@ export function printSuccess(text: string): void {
 
 export function printWarning(text: string): void {
 	console.log(`${INDENT}${paint(`!`, STONE, BOLD)} ${paint(text, INK)}`);
-}
-
-export function printError(text: string): void {
-	console.log(`${INDENT}${paint(`✗`, ROSE, BOLD)} ${paint(text, INK)}`);
 }
 
 export function printSection(title: string): void {

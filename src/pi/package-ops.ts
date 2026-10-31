@@ -1,3 +1,5 @@
+// Installs, updates and checks the Pi packages listed in settings, inside OpenMarketing's own npm prefix.
+
 import { spawn } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -231,9 +233,10 @@ async function runPackageManagerInstall(
 			env: childPackageManagerEnv(),
 		});
 
+		// npm's output goes to stderr: stdout carries the RPC protocol in desktop mode.
 		child.stdout?.on("data", (chunk) => {
 			if (!suppressKnownNativeFailureOutput) {
-				relayFilteredOutput(chunk, process.stdout);
+				relayFilteredOutput(chunk, process.stderr);
 			}
 		});
 		child.stderr?.on("data", (chunk) => {

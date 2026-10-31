@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { pathToFileURL } from "node:url";
+import { delimiter, dirname } from "node:path";
 
 import { applyOpenMarketingPackageManagerEnv, buildPiArgs, buildPiEnv, resolvePiPaths, toNodeImportSpecifier } from "../src/pi/runtime.js";
 
@@ -77,6 +78,7 @@ test("buildPiEnv wires OpenMarketing paths into the Pi environment", () => {
 				"/repo/openmarketing/node_modules/.bin:/repo/openmarketing/.openmarketing/npm/node_modules/.bin:/home/.openmarketing/npm-global/bin:",
 			),
 		);
+		assert.ok(env.PATH?.split(delimiter).includes(dirname(process.execPath)), "the running node's folder (and its npm) is on PATH");
 	} finally {
 		if (previousUppercasePrefix === undefined) {
 			delete process.env.NPM_CONFIG_PREFIX;

@@ -1,3 +1,6 @@
+// Where OpenMarketing keeps its state (~/.openmarketing, or OPENMARKETING_HOME), including the
+// migration from the legacy .marketingagents / .adsagents / .feynman home folders.
+
 import { existsSync, mkdirSync, renameSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, resolve } from "node:path";

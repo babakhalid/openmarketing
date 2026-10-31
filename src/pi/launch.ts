@@ -1,3 +1,5 @@
+// Spawns the Pi chat process with OpenMarketing's arguments and environment, forwarding exit codes.
+
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { constants } from "node:os";

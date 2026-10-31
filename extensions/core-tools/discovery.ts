@@ -1,3 +1,5 @@
+// /commands, /tools and /capabilities: list what is available in the current session.
+
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { resolve } from "node:path";

@@ -1,3 +1,5 @@
+// Builds Pi's model registry from the auth store and models.json.
+
 import { dirname, resolve } from "node:path";
 
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";

@@ -1,3 +1,5 @@
+// /service-tier: choose the OpenAI or Anthropic service tier and apply it to outgoing requests.
+
 import { homedir } from "node:os";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";

@@ -1,3 +1,5 @@
+// Templates written by /init: the workspace AGENTS.md and the notes/ README.
+
 export function buildProjectAgentsTemplate(): string {
 	return `# OpenMarketing Workspace Guide
 

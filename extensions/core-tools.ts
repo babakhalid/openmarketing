@@ -1,3 +1,5 @@
+// Pi extension with OpenMarketing's core commands and the startup header.
+
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 import { registerDiscoveryCommands } from "./core-tools/discovery.js";
