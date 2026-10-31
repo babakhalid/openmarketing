@@ -54,6 +54,7 @@
     "prepack": "node ./scripts/clean-publish-artifacts.mjs && npm run build && node ./scripts/prepare-runtime-workspace.mjs",
     "start": "tsx src/index.ts",
     "start:dist": "node ./bin/openmarketing.js",
+    "pretest": "node ./scripts/patch-embedded-pi.mjs",
     "test": "node --import tsx --test --test-concurrency=1 tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "unused": "knip"
