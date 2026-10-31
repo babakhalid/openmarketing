@@ -1,0 +1,11 @@
+# The Vercel project builds only the website (root directory: website/).
+# Its build copies scripts/install/* into website/public, so upload just those two folders.
+/*
+!/website
+!/scripts
+/scripts/*
+!/scripts/sync-website-installers.mjs
+!/scripts/install
+/website/node_modules
+/website/dist
+/website/.astro

@@ -1,0 +1,20 @@
+{
+  "name": "openmarketing-hero-video",
+  "private": true,
+  "description": "The 16:9 hero video for openmarketing.dev, built with Remotion. Renders to website/public/hero.mp4.",
+  "scripts": {
+    "browser": "remotion browser ensure && ditto node_modules/.remotion/chrome-headless-shell/mac-arm64/chrome-headless-shell-mac-arm64 ~/.cache/openmarketing-hero-chrome",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Hero out/hero.mp4 --codec=h264 --crf=20",
+    "still": "remotion still src/index.ts Hero out/poster.png --frame=405"
+  },
+  "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@remotion/cli": "4.0.539",
+    "@remotion/motion-blur": "4.0.539",
+    "@remotion/noise": "4.0.539",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.539"
+  }
+}

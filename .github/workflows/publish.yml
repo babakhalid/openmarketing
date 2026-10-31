@@ -1,0 +1,192 @@
+name: Publish and Release
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      should_release: ${{ steps.version.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+      - id: version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LOCAL=$(node -p "require('./package.json').version")
+          echo "version=$LOCAL" >> "$GITHUB_OUTPUT"
+          PUBLISHED=$(npm view "openmarketing@$LOCAL" version 2>/dev/null || true)
+          if [ "$PUBLISHED" = "$LOCAL" ] && gh release view "v$LOCAL" >/dev/null 2>&1; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  verify:
+    needs: version-check
+    if: needs.version-check.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - name: Verify installer syntax and generated website copies
+        shell: bash
+        run: |
+          sh -n scripts/install/install.sh
+          sh -n scripts/install/install-skills.sh
+          pwsh -NoProfile -Command '[void][scriptblock]::Create((Get-Content scripts/install/install.ps1 -Raw)); [void][scriptblock]::Create((Get-Content scripts/install/install-skills.ps1 -Raw))'
+          node scripts/sync-website-installers.mjs
+          git diff --exit-code -- website/public
+      - name: Build documentation website
+        run: |
+          npm --prefix website ci
+          npm --prefix website run build
+      - run: npm pack
+
+  publish-npm:
+    needs:
+      - version-check
+      - verify
+    if: needs.version-check.outputs.should_release == 'true' && needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - name: Publish npm package when this version is missing
+        shell: bash
+        env:
+          # Required only for the first publish, before npm can attach a trusted
+          # publisher to the newly created package. OIDC is preferred afterward.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          LOCAL=$(node -p "require('./package.json').version")
+          PUBLISHED=$(npm view "openmarketing@$LOCAL" version 2>/dev/null || true)
+          if [ "$PUBLISHED" = "$LOCAL" ]; then
+            echo "openmarketing@$LOCAL is already published"
+          else
+            npm publish --provenance
+          fi
+
+  build-native-bundles:
+    needs: version-check
+    if: needs.version-check.outputs.should_release == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: linux-x64
+            os: ubuntu-latest
+          - id: darwin-x64
+            os: macos-15-intel
+          - id: darwin-arm64
+            os: macos-14
+          - id: win32-x64
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run build:native-bundle
+      - name: Smoke native bundle (Unix)
+        if: matrix.id != 'win32-x64'
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          tmp=$(mktemp -d)
+          tar -xzf "dist/release/openmarketing-${VERSION}-${{ matrix.id }}.tar.gz" -C "$tmp"
+          "$tmp/openmarketing-${VERSION}-${{ matrix.id }}/openmarketing" --help >/tmp/openmarketing-help.out
+          "$tmp/openmarketing-${VERSION}-${{ matrix.id }}/om" --version
+          head -20 /tmp/openmarketing-help.out
+      - name: Smoke native bundle (Windows)
+        if: matrix.id == 'win32-x64'
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $tmp = Join-Path $env:RUNNER_TEMP ("openmarketing-smoke-" + [guid]::NewGuid().ToString("N"))
+          New-Item -ItemType Directory -Path $tmp | Out-Null
+          Expand-Archive -LiteralPath "dist/release/openmarketing-$version-win32-x64.zip" -DestinationPath $tmp -Force
+          $bundleRoot = Join-Path $tmp "openmarketing-$version-win32-x64"
+          & (Join-Path $bundleRoot "openmarketing.cmd") --help | Select-Object -First 20
+          & (Join-Path $bundleRoot "om.cmd") --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.id }}
+          path: dist/release/*
+
+  release-github:
+    needs:
+      - version-check
+      - publish-npm
+      - build-native-bundles
+    if: needs.version-check.outputs.should_release == 'true' && needs.publish-npm.result == 'success' && needs.build-native-bundles.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Build release notes
+        shell: bash
+        env:
+          VERSION: ${{ needs.version-check.outputs.version }}
+        run: |
+          node scripts/extract-release-notes.mjs "$VERSION" "$RUNNER_TEMP/release-notes.md"
+      - name: Create GitHub release
+        shell: bash
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version-check.outputs.version }}
+        run: |
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" release-assets/* --clobber
+            gh release edit "v$VERSION" \
+              --title "v$VERSION" \
+              --notes-file "$RUNNER_TEMP/release-notes.md" \
+              --draft=false \
+              --latest
+          else
+            gh release create "v$VERSION" release-assets/* \
+              --title "v$VERSION" \
+              --notes-file "$RUNNER_TEMP/release-notes.md" \
+              --target "$GITHUB_SHA"
+          fi

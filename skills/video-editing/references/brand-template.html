@@ -1,0 +1,186 @@
+<!doctype html>
+<!--
+  Brand reference page for a video workspace. Copy to branding/brand.html and replace every
+  piece of sample content (keep the structure, class names and the two token blocks).
+  - :root variables  → the page's own look AND the brand palette shown in the swatches
+  - #brand-tokens    → machine-readable tokens; copy "palette" into the SpecAd "brand" field
+  Image paths are relative to branding/ (e.g. ../outputs/videos/<slug>/frames/frame-00020.png,
+  analysis/<ref>/hook/hook-0-3s.jpg). The desktop app previews this page live and lets the user
+  point at any element and ask the agent to change it — edit in place, never regenerate blindly.
+-->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Brand reference — Launch teaser</title>
+		<script type="application/json" id="brand-tokens">
+			{
+				"name": "Launch teaser",
+				"format": "F4 Kinetic Collage",
+				"specPalette": "paper",
+				"palette": { "bg": "#F7F3EC", "bgAlt": "#0A0A0A", "text": "#151515", "accent": "#E10600", "accent2": "#151515", "glow": "#FF1A1A" },
+				"type": { "display": "Neo-grotesk, heavy, tight (-2px)", "body": "Neo-grotesk 600", "captions": "Uppercase 900, two-tone" },
+				"cta": "Hit the DM button"
+			}
+		</script>
+		<style>
+			:root {
+				/* page chrome: monochrome editorial */
+				--ink: #17171c;
+				--ink-2: #73738a;
+				--paper: #f0eee9;
+				--white: #ffffff;
+				--rule: rgba(23, 23, 28, 0.1);
+				/* brand palette (mirror #brand-tokens) */
+				--brand-bg: #f7f3ec;
+				--brand-bg-alt: #0a0a0a;
+				--brand-text: #151515;
+				--brand-accent: #e10600;
+				--brand-accent-2: #151515;
+				--serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+				--sans: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+				--mono: ui-monospace, "SF Mono", Menlo, monospace;
+			}
+			* { box-sizing: border-box; }
+			body { margin: 0; background: var(--white); color: var(--ink); font: 400 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
+			main { max-width: 1040px; margin: 0 auto; padding: 56px 40px 96px; }
+			.eyebrow { font: 400 11px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+			h1 { font: 400 64px/1 var(--serif); letter-spacing: -0.02em; margin: 14px 0 16px; }
+			h2 { font: 400 32px/1.15 var(--sans); letter-spacing: -0.01em; margin: 8px 0 22px; }
+			.lede { font-size: 18px; color: var(--ink-2); max-width: 620px; margin: 0; }
+			section { padding-top: 64px; margin-top: 64px; border-top: 1px solid var(--rule); }
+			.meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 26px; }
+			.pill { display: inline-block; padding: 4px 12px; border-radius: 9999px; font: 11px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; box-shadow: inset 0 0 0 1px var(--rule); }
+			.pill.dark { background: var(--ink); color: #fafafa; box-shadow: none; }
+			.swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+			.swatch { border-radius: 22px; overflow: hidden; background: var(--paper); }
+			.swatch .chip { height: 128px; }
+			.swatch .label { padding: 12px 14px 14px; }
+			.swatch .name { font-size: 15px; }
+			.swatch .hex { font: 11px var(--mono); color: var(--ink-2); text-transform: uppercase; }
+			.type-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; }
+			.specimen { border-radius: 22px; padding: 28px; background: var(--brand-bg); color: var(--brand-text); min-height: 230px; display: flex; flex-direction: column; justify-content: flex-end; }
+			.specimen.dark { background: var(--brand-bg-alt); color: #fff; }
+			.specimen .lead { font: 600 22px/1.1 var(--sans); }
+			.specimen .punch { font: 800 76px/0.95 var(--sans); letter-spacing: -2px; color: var(--brand-accent); }
+			.specimen.dark .punch { text-shadow: 0 0 30px var(--brand-accent); }
+			.specimen .caption { font: 900 30px/1 var(--sans); text-transform: uppercase; letter-spacing: -0.5px; }
+			.specimen .caption em { font-style: normal; color: var(--brand-accent); }
+			.voice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+			.panel { border-radius: 22px; padding: 26px 28px; background: var(--paper); }
+			.panel ul { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+			.panel li { padding-left: 18px; position: relative; }
+			.panel li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+			.panel.dont li::before { background: none; box-shadow: inset 0 0 0 1.5px var(--ink); }
+			.tone { display: flex; gap: 8px; flex-wrap: wrap; }
+			.hooks { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--rule); }
+			.hooks li { display: grid; grid-template-columns: 40px 1fr auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+			.hooks .n { font: 11px var(--mono); color: var(--ink-2); }
+			.hooks .line { font: 400 28px/1.15 var(--serif); letter-spacing: -0.01em; }
+			.board { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+			.shot { display: grid; gap: 10px; }
+			.shot .frame { aspect-ratio: 9 / 16; border-radius: 12px; overflow: hidden; background: var(--paper); }
+			.shot .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+			.shot .tc { font: 11px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.06em; }
+			.shot .vo { font-size: 14px; }
+			.shot .os { font: 12px var(--mono); color: var(--ink-2); }
+			.refs { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+			.ref { border-radius: 22px; background: var(--paper); padding: 14px; display: grid; gap: 12px; }
+			.ref img { width: 100%; border-radius: 12px; display: block; aspect-ratio: 6 / 1.75; object-fit: cover; object-position: top; }
+			.ref .title { font-size: 16px; padding: 0 4px; }
+			.ref .facts { font: 11px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 4px 4px; }
+			/* narrow previews (the desktop app's side panel) */
+			@media (max-width: 680px) {
+				main { padding: 32px 22px 64px; }
+				h1 { font-size: 44px; }
+				h2 { font-size: 24px; }
+				.lede { font-size: 16px; }
+				section { padding-top: 40px; margin-top: 40px; }
+				.swatches { grid-template-columns: repeat(3, 1fr); }
+				.swatch .chip { height: 84px; }
+				.type-grid, .voice { grid-template-columns: 1fr; }
+				.specimen { min-height: 170px; }
+				.specimen .punch { font-size: 56px; }
+				.hooks .line { font-size: 21px; }
+				.board { grid-template-columns: repeat(2, 1fr); }
+			}
+			footer { margin-top: 80px; font: 11px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.06em; }
+		</style>
+	</head>
+	<body>
+		<main>
+			<div class="eyebrow">Brand reference · branding/brand.html</div>
+			<h1 id="brand-name">Launch teaser</h1>
+			<p class="lede" id="positioning">A 17-second Instagram-growth ad: contrarian kinetic type on paper and black, one red accent, a DM call to action.</p>
+			<div class="meta">
+				<span class="pill dark">F4 Kinetic Collage</span>
+				<span class="pill">1080 × 1920 · 30 fps</span>
+				<span class="pill">17 s</span>
+				<span class="pill">−14 LUFS</span>
+			</div>
+
+			<section id="palette">
+				<div class="eyebrow">01 · Palette</div>
+				<h2>One accent, two grounds.</h2>
+				<div class="swatches">
+					<div class="swatch"><div class="chip" style="background: var(--brand-bg)"></div><div class="label"><div class="name">Paper</div><div class="hex">#F7F3EC · bg</div></div></div>
+					<div class="swatch"><div class="chip" style="background: var(--brand-bg-alt)"></div><div class="label"><div class="name">Night</div><div class="hex">#0A0A0A · bgAlt</div></div></div>
+					<div class="swatch"><div class="chip" style="background: var(--brand-text)"></div><div class="label"><div class="name">Ink</div><div class="hex">#151515 · text</div></div></div>
+					<div class="swatch"><div class="chip" style="background: var(--brand-accent)"></div><div class="label"><div class="name">Signal red</div><div class="hex">#E10600 · accent</div></div></div>
+					<div class="swatch"><div class="chip" style="background: #ff1a1a"></div><div class="label"><div class="name">Glow</div><div class="hex">#FF1A1A · glow</div></div></div>
+				</div>
+			</section>
+
+			<section id="type">
+				<div class="eyebrow">02 · Type</div>
+				<h2>Small lead, huge punch word.</h2>
+				<div class="type-grid">
+					<div class="specimen"><div class="lead">You've got the</div><div class="punch">ideas</div></div>
+					<div class="specimen dark"><div class="caption">Without an <em>audience</em></div></div>
+				</div>
+			</section>
+
+			<section id="voice">
+				<div class="eyebrow">03 · Voice</div>
+				<h2>Direct, a little provocative, never hype.</h2>
+				<div class="tone"><span class="pill">contrarian</span><span class="pill">concrete</span><span class="pill">second person</span><span class="pill">short clauses</span></div>
+				<div class="voice" style="margin-top: 16px">
+					<div class="panel"><div class="eyebrow">Do</div><ul><li>One idea per scene, one accent word per phrase</li><li>Name the real cost (“no eyeballs, no earnings”)</li><li>End on an explicit action</li></ul></div>
+					<div class="panel dont"><div class="eyebrow">Don't</div><ul><li>Stack two accent colours</li><li>Show unsourced numbers</li><li>Put text over a face</li></ul></div>
+				</div>
+			</section>
+
+			<section id="hooks">
+				<div class="eyebrow">04 · Hooks</div>
+				<h2>Three options, one pick.</h2>
+				<ol class="hooks">
+					<li><span class="n">01</span><span class="line">You've got the ideas. Not the growth.</span><span class="pill dark">pick</span></li>
+					<li><span class="n">02</span><span class="line">Content without an audience is noise.</span><span class="pill">alt</span></li>
+					<li><span class="n">03</span><span class="line">Instagram doesn't reward effort.</span><span class="pill">alt</span></li>
+				</ol>
+			</section>
+
+			<section id="storyboard">
+				<div class="eyebrow">05 · Storyboard</div>
+				<h2>Scene by scene.</h2>
+				<div class="board">
+					<div class="shot"><div class="frame"><img src="../outputs/videos/launch-teaser/frames/frame-00020.png" alt="" /></div><div class="tc">00:00 – 02.2 · punch</div><div class="vo">You've got the ideas…</div><div class="os">lead + IDEAS (accent)</div></div>
+					<div class="shot"><div class="frame"><img src="../outputs/videos/launch-teaser/frames/frame-00070.png" alt="" /></div><div class="tc">02.2 – 04.2 · punch dark</div><div class="vo">But your growth?</div><div class="os">flash in · glow</div></div>
+					<div class="shot"><div class="frame"><img src="../outputs/videos/launch-teaser/frames/frame-00160.png" alt="" /></div><div class="tc">04.2 – 08.7 · footage</div><div class="vo">Content without an audience is just noise.</div><div class="os">captions y 0.62</div></div>
+					<div class="shot"><div class="frame"><img src="../outputs/videos/launch-teaser/frames/frame-00260.png" alt="" /></div><div class="tc">08.7 – 11.7 · counter</div><div class="vo">The audience is the real money.</div><div class="os">beam · 1,200 → 48,210</div></div>
+					<div class="shot"><div class="frame"><img src="../outputs/videos/launch-teaser/frames/frame-00480.png" alt="" /></div><div class="tc">14.2 – 17.4 · end card</div><div class="vo">Hit the DM button.</div><div class="os">handle + CTA pill</div></div>
+				</div>
+			</section>
+
+			<section id="references">
+				<div class="eyebrow">06 · References</div>
+				<h2>What we're matching.</h2>
+				<div class="refs">
+					<div class="ref"><img src="analysis/earthy-mountain-ad/hook/hook-0-3s.jpg" alt="" /><div class="title">earthy-mountain-ad.mp4</div><div class="facts">F4 · 33.6 cuts/min · −14.5 LUFS · cream ↔ black</div></div>
+				</div>
+			</section>
+
+			<footer>Source of truth for palette, type and voice · keep #brand-tokens in sync</footer>
+		</main>
+	</body>
+</html>

@@ -1,0 +1,35 @@
+node_modules
+.env
+.feynman/npm
+.feynman/git
+.feynman/sessions
+.feynman/schedule-prompts.json
+.adsagents/npm
+.adsagents/git
+.adsagents/sessions
+.adsagents/schedule-prompts.json
+.openmarketing/npm
+.openmarketing/git
+.openmarketing/sessions
+.openmarketing/schedule-prompts.json
+dist
+*.tgz
+outputs/*
+!outputs/.gitkeep
+papers/*
+!papers/.gitkeep
+notes/*
+!notes/.gitkeep
+experiments/*
+!experiments/.gitkeep
+
+
+# third-party reference videos (not ours to redistribute)
+assets/Video references/
+
+# Astro build cache
+website/.astro/
+
+# Vercel project link
+.vercel
+.env*

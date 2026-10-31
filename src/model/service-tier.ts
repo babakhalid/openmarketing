@@ -1,0 +1,68 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
+
+import { readJsonFile } from "../config/json-file.js";
+
+export const OPENMARKETING_SERVICE_TIERS = [
+	"auto",
+	"default",
+	"flex",
+	"priority",
+	"standard_only",
+] as const;
+
+export type OpenMarketingServiceTier = (typeof OPENMARKETING_SERVICE_TIERS)[number];
+
+const SERVICE_TIER_SET = new Set<string>(OPENMARKETING_SERVICE_TIERS);
+const OPENAI_SERVICE_TIERS = new Set<OpenMarketingServiceTier>(["auto", "default", "flex", "priority"]);
+const ANTHROPIC_SERVICE_TIERS = new Set<OpenMarketingServiceTier>(["auto", "standard_only"]);
+
+// serviceTier is OpenMarketing's key; Pi's SettingsManager has no getter or setter for it, so it is read and written directly.
+function readSettings(settingsPath: string): Record<string, unknown> {
+	try {
+		return readJsonFile(settingsPath) as Record<string, unknown>;
+	} catch {
+		return {};
+	}
+}
+
+export function normalizeServiceTier(value: string | undefined): OpenMarketingServiceTier | undefined {
+	if (!value) return undefined;
+	const normalized = value.trim().toLowerCase();
+	return SERVICE_TIER_SET.has(normalized) ? (normalized as OpenMarketingServiceTier) : undefined;
+}
+
+export function getConfiguredServiceTier(settingsPath: string): OpenMarketingServiceTier | undefined {
+	const settings = readSettings(settingsPath);
+	return normalizeServiceTier(typeof settings.serviceTier === "string" ? settings.serviceTier : undefined);
+}
+
+export function setConfiguredServiceTier(settingsPath: string, tier: OpenMarketingServiceTier | undefined): void {
+	const settings = readSettings(settingsPath);
+	if (tier) {
+		settings.serviceTier = tier;
+	} else {
+		delete settings.serviceTier;
+	}
+
+	mkdirSync(dirname(settingsPath), { recursive: true });
+	writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf8");
+}
+
+export function resolveActiveServiceTier(settingsPath: string): OpenMarketingServiceTier | undefined {
+	return normalizeServiceTier(process.env.OPENMARKETING_SERVICE_TIER) ?? getConfiguredServiceTier(settingsPath);
+}
+
+export function resolveProviderServiceTier(
+	provider: string | undefined,
+	tier: OpenMarketingServiceTier | undefined,
+): OpenMarketingServiceTier | undefined {
+	if (!provider || !tier) return undefined;
+	if ((provider === "openai" || provider === "openai-codex") && OPENAI_SERVICE_TIERS.has(tier)) {
+		return tier;
+	}
+	if (provider === "anthropic" && ANTHROPIC_SERVICE_TIERS.has(tier)) {
+		return tier;
+	}
+	return undefined;
+}

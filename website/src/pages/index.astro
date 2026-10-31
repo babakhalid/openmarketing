@@ -1,0 +1,393 @@
+---
+import Layout from "@/layouts/main.astro"
+
+// The guided video workflow (prompts/video.md): the agent works and recommends, the user decides.
+const steps = [
+  { name: "Brief", body: "Say what you want. The agent only asks when something essential is missing, with suggested answers." },
+  { name: "Brand", body: "It builds brand.html from your real identity. You approve it, or click any element to change it." },
+  { name: "References", body: "Drop reference videos. It measures their hooks, pace and type, and you pick which ones shape the cut." },
+  { name: "Style & engine", body: "Two or three directions with preview frames, and a generation path: motion design, GPT image, or AI footage." },
+  { name: "Storyboard", body: "Key frames before any render. Nothing that costs credits runs until you approve." },
+  { name: "Render & review", body: "Remotion renders, an automated QA gate checks it, and you get outputs/latest.mp4 to ship or revise." },
+]
+
+const groups = [
+  {
+    title: "Understand",
+    items: [
+      { command: "/start", description: "Context, a readiness snapshot and one justified next action" },
+      { command: "/context", description: "Shared product, audience, positioning, funnel and proof context" },
+      { command: "/customer-research", description: "Customer language, jobs, objections and contradictions, with provenance" },
+      { command: "/research", description: "Alternatives, demand signals, category movement and distribution" },
+      { command: "/persona", description: "Users, buyers, champions and technical evaluators, from evidence" },
+      { command: "/psychology", description: "Jobs, awareness, friction and trust mapped to ethical messaging" },
+    ],
+  },
+  {
+    title: "Decide",
+    items: [
+      { command: "/diagnose", description: "The binding full-funnel constraint instead of a guessed tactic" },
+      { command: "/strategy", description: "Up to three focused bets, explicit non-bets and decision rules" },
+      { command: "/plan", description: "A 90-day plan with owners, dependencies, assets and approval gates" },
+      { command: "/next", description: "The single highest-leverage action for your evidence and capacity" },
+    ],
+  },
+  {
+    title: "Make",
+    items: [
+      { command: "/video", description: "Premium short-form video, guided from brand to QA-passed render" },
+      { command: "/creative", description: "Ad creative variants with provenance, Meta-ready, never auto-launched" },
+      { command: "/summarize", description: "Any URL, file or PDF, summarised without flooding the context" },
+    ],
+  },
+  {
+    title: "Measure",
+    items: [
+      { command: "/track", description: "Verified Meta Ads evidence against the rules in your plan" },
+      { command: "/report", description: "A decision-focused report with gaps labelled, no invented data" },
+      { command: "/weekly-review", description: "Continue, change, stop or investigate, from verified results" },
+      { command: "/loop", description: "Safe recurring work with durable state and a kill switch" },
+    ],
+  },
+]
+
+const agents = [
+  { name: "Market researcher", description: "Alternatives, demand, audience and channel evidence, every claim cited" },
+  { name: "Customer researcher", description: "First-party and proxy voice of customer, no invented quotes" },
+  { name: "Strategist", description: "Builds full-funnel strategy, then critiques it adversarially" },
+  { name: "Psych analyst", description: "Behavioural levers mapped to ethical messaging" },
+  { name: "Persona builder", description: "Users, buyers, champions and evaluators, kept apart" },
+  { name: "Creative director", description: "GPT image and Higgsfield variants; uploads, never launches" },
+  { name: "Video editor", description: "Storyboard, Remotion render, loudness and platform encodes, QA gate" },
+  { name: "Tracker", description: "Pulls and verifies paid metrics against raw API responses" },
+  { name: "Reporter", description: "Decision-focused reports with every gap labelled" },
+]
+
+const tools = [
+  { name: "Video studio", description: "Remotion, ffmpeg and whisper.cpp, installed and driven by the agent. You never run it yourself." },
+  { name: "GPT image", description: "OpenAI's image generation through your ChatGPT account, with a provenance sidecar per image." },
+  { name: "Cross-model", description: "The lead model knows every connected model and can ask GPT, Claude or Gemini for a second read." },
+  { name: "Guided checkpoints", description: "Decisions that are yours come as cards: options, previews, a recommendation and why." },
+  { name: "Higgsfield", description: "Image and video generation for ads and AI footage, credits checked first." },
+  { name: "Meta Ads", description: "Insights, campaigns and creative upload. Launching always needs your confirmation." },
+  { name: "Web search", description: "Provider-agnostic search and fetch, with sources kept for every claim." },
+  { name: "Session memory", description: "Durable sessions, decision logs and a campaign changelog you can resume from." },
+]
+
+const skills = [
+  "video-editing", "video-reference-analysis", "creative", "marketing-context", "market-research", "customer-research",
+  "persona-business", "psychology-analytics", "startup-diagnosis", "marketing-strategy", "marketing-plan", "ad-tracking",
+  "marketing-reporting", "marketing-loops", "session-log", "session-search", "jobs", "preview", "eli5", "contributing",
+]
+
+const plugins = [
+  "pi-subagents", "pi-web-access", "pi-docparser", "pi-markdown-preview", "pi-charts", "pi-mermaid",
+  "pi-processes", "pi-schedule-prompt", "pi-memory", "pi-btw", "pi-ralph-wiggum", "pi-zotero", "alpha-hub",
+]
+
+const terminal = [
+  { command: 'om start "API observability for small platform teams"', description: "Context, readiness and one justified next action" },
+  { command: "om video 15-second launch teaser", description: "Guided: brand → references → style → storyboard → render" },
+  { command: "om research api-observability", description: "Alternatives, demand and distribution evidence, cited" },
+  { command: "om strategy api-observability", description: "Focused bets, non-bets, measurement and approval gates" },
+  { command: "om weekly-review api-observability", description: "Verified learning and the next decision" },
+]
+
+const installCommands = [
+  { label: "curl", command: "curl -fsSL https://raw.githubusercontent.com/babakhalid/openmarketing/main/scripts/install/install.sh | bash" },
+  { label: "npm", command: "npm install -g openmarketing" },
+]
+---
+
+<Layout active="home">
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-[520px] max-w-4xl rounded-full bg-mode blur-3xl opacity-60"></div>
+    <div class="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-10 pt-16 text-center sm:px-6 sm:pt-24">
+      <a href="https://github.com/babakhalid/openmarketing" target="_blank" rel="noopener noreferrer" class="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground">
+        <span class="size-1.5 rounded-full bg-mode-foreground"></span>
+        Open source · MIT · CLI + desktop app
+      </a>
+      <h1 class="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+        Your marketing team,<br class="hidden sm:block" /> guided step by step
+      </h1>
+      <p class="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        OpenMarketing researches your market, picks a focused strategy and makes the assets, down to finished short-form video. It recommends at every step. You make the calls.
+      </p>
+
+      <div class="mt-8 w-full max-w-2xl">
+        <div class="flex gap-1">
+          {installCommands.map((entry, i) => (
+            <button
+              class:list={[
+                "install-toggle cursor-pointer rounded-t-lg px-3.5 py-1.5 font-mono text-xs transition-colors",
+                i === 0 ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground",
+              ]}
+              data-command={entry.command}
+              aria-label={`Show ${entry.label} install command`}
+            >
+              {entry.label}
+            </button>
+          ))}
+        </div>
+        <button
+          id="install-cmd"
+          class="group flex w-full cursor-pointer items-center justify-between gap-3 rounded-b-xl rounded-tr-xl border border-border bg-card px-4 py-3.5 text-left font-mono text-xs transition-colors hover:bg-accent sm:text-sm"
+          data-command={installCommands[0].command}
+          aria-label="Copy install command"
+        >
+          <span class="flex min-w-0 items-center gap-3">
+            <span class="text-mode-foreground">$</span>
+            <span id="install-command" class="truncate">{installCommands[0].command}</span>
+          </span>
+          <svg id="install-copy" class="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg id="install-check" class="hidden size-4 shrink-0 text-mode-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <a href="/docs/getting-started/installation" class="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]">Get started</a>
+        <a href="/docs/getting-started/desktop-app" class="inline-flex h-10 items-center rounded-lg border border-input px-5 text-sm font-medium transition-colors hover:bg-accent">Desktop app</a>
+      </div>
+    </div>
+
+    <!-- Hero film: a guided /video run, strategy, then the brand (apps/hero-video, Remotion) -->
+    <div class="relative mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+      <div class="overflow-hidden rounded-2xl border border-border bg-[#0b0b0b] shadow-[0_40px_120px_-40px_rgba(0,0,0,0.6)]">
+        <video
+          id="hero-film"
+          class="block aspect-video w-full"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="/hero-poster.jpg"
+          aria-label="OpenMarketing in motion: a video brief typed into the desktop app, the agent's work steps, a style decision with three previews, results, a strategy, and the OpenMarketing logo"
+        >
+          <source src="/hero.webm" type="video/webm" />
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- Guided workflow -->
+  <section class="border-t border-border">
+    <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_2fr]">
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <p class="font-mono text-xs uppercase tracking-wider text-mode-foreground">The workflow</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">The agent proposes. You decide.</h2>
+        <p class="mt-4 max-w-md leading-relaxed text-muted-foreground">
+          Every <span class="font-mono text-foreground">/video</span> run stops at the decisions that are yours. You get real options with previews, a recommendation and the reason for it, and room to say it in your own words. Every answer is logged, so a run can resume where it left off.
+        </p>
+        <a href="/docs/workflows/video" class="mt-6 inline-flex text-sm font-medium underline decoration-muted-foreground underline-offset-4 hover:decoration-foreground">Read the video workflow →</a>
+      </div>
+      <ol class="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2">
+        {steps.map((step, i) => (
+          <li class="flex flex-col gap-2 bg-background p-6">
+            <span class="font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
+            <span class="font-medium">{step.name}</span>
+            <span class="text-sm leading-relaxed text-muted-foreground">{step.body}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+      <figure class="overflow-hidden rounded-2xl border border-border bg-card">
+        <div class="flex h-9 items-center gap-1.5 border-b border-border px-4">
+          <span class="size-2.5 rounded-full bg-muted-foreground/30"></span>
+          <span class="size-2.5 rounded-full bg-muted-foreground/30"></span>
+          <span class="size-2.5 rounded-full bg-muted-foreground/30"></span>
+          <span class="ml-3 font-mono text-[11px] text-muted-foreground">OpenMarketing — tracewell-launch</span>
+        </div>
+        <img src="/app-dark.jpg" width="2160" height="1770" loading="lazy" class="hidden w-full dark:block" alt="The OpenMarketing desktop app asking the user to pick a video style: three previewed directions, a recommended option with its reason, and a generation-engine choice" />
+        <img src="/app-light.jpg" width="2160" height="1770" loading="lazy" class="block w-full dark:hidden" alt="The OpenMarketing desktop app asking the user to pick a video style: three previewed directions, a recommended option with its reason, and a generation-engine choice" />
+      </figure>
+      <p class="mt-4 text-center text-sm text-muted-foreground">
+        Step 04 in the desktop app: the brand is approved, and the agent proposes three styles with previews and recommends one.
+      </p>
+    </div>
+  </section>
+
+  <!-- Terminal -->
+  <section class="border-t border-border">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="mb-10 max-w-2xl">
+        <p class="font-mono text-xs uppercase tracking-wider text-mode-foreground">Terminal or app</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">What you type, and what happens</h2>
+        <p class="mt-4 leading-relaxed text-muted-foreground">The CLI and the desktop app share the same agents, accounts and files. Start in one, finish in the other.</p>
+      </div>
+      <div class="overflow-hidden rounded-2xl border border-border bg-card">
+        <div class="flex h-9 items-center border-b border-border px-4 font-mono text-[11px] text-muted-foreground">~/tracewell</div>
+        <div class="flex flex-col gap-4 p-5 font-mono text-sm sm:p-6">
+          {terminal.map((line) => (
+            <div class="flex flex-col gap-1">
+              <span class="break-all"><span class="text-mode-foreground">$ </span>{line.command}</span>
+              <span class="text-xs text-muted-foreground">{line.description}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflows -->
+  <section class="border-t border-border">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="mb-10 max-w-2xl">
+        <p class="font-mono text-xs uppercase tracking-wider text-mode-foreground">Workflows</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">From first customer interview to weekly review</h2>
+        <p class="mt-4 leading-relaxed text-muted-foreground">Start guided with <span class="font-mono text-foreground">/start</span>, or call any workflow directly. Each one writes durable files you can read, edit and version.</p>
+      </div>
+      <div class="grid gap-x-10 gap-y-10 md:grid-cols-2">
+        {groups.map((group) => (
+          <div>
+            <h3 class="mb-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">{group.title}</h3>
+            <ul class="divide-y divide-border border-y border-border">
+              {group.items.map((item) => (
+                <li class="grid grid-cols-[9.5rem_1fr] gap-4 py-3">
+                  {item.command === "/summarize" ? (
+                    <span class="font-mono text-sm">{item.command}</span>
+                  ) : (
+                    <a href={`/docs/workflows/${item.command.slice(1)}`} class="font-mono text-sm hover:text-mode-foreground">{item.command}</a>
+                  )}
+                  <span class="text-sm leading-relaxed text-muted-foreground">{item.description}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Agents -->
+  <section class="border-t border-border">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="mb-10 max-w-2xl">
+        <p class="font-mono text-xs uppercase tracking-wider text-mode-foreground">Agents</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">Nine specialists, one lead</h2>
+        <p class="mt-4 leading-relaxed text-muted-foreground">The lead agent plans and delegates; specialists hand work back as files. Plans get an adversarial critique and metrics get verified before anything reaches you.</p>
+      </div>
+      <div class="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+        {agents.map((agent) => (
+          <div class="flex flex-col gap-1.5 bg-background p-5">
+            <span class="font-medium">{agent.name}</span>
+            <span class="text-sm leading-relaxed text-muted-foreground">{agent.description}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools, skills, plugins -->
+  <section class="border-t border-border">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="mb-10 max-w-2xl">
+        <p class="font-mono text-xs uppercase tracking-wider text-mode-foreground">Tools, skills and plugins</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">Everything it needs, bundled</h2>
+        <p class="mt-4 leading-relaxed text-muted-foreground">Built on the <a href="https://github.com/badlogic/pi-mono" target="_blank" rel="noopener noreferrer" class="underline decoration-muted-foreground underline-offset-4 hover:text-foreground">Pi agent runtime</a>. Tools do the work, skills carry the know-how, and plugins extend the runtime. Bring your own model accounts: Claude, ChatGPT, Gemini and more.</p>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {tools.map((tool) => (
+          <div class="flex flex-col gap-1.5 rounded-xl border border-border bg-card p-5">
+            <span class="font-medium">{tool.name}</span>
+            <span class="text-sm leading-relaxed text-muted-foreground">{tool.description}</span>
+          </div>
+        ))}
+      </div>
+      <div class="mt-10 grid gap-10 md:grid-cols-2">
+        <div>
+          <h3 class="mb-3 flex items-baseline justify-between font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            Skills <a href="/docs/reference/skills" class="normal-case tracking-normal hover:text-foreground">{skills.length} bundled →</a>
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            {skills.map((skill) => <span class="rounded-md border border-border px-2 py-1 font-mono text-xs text-muted-foreground">{skill}</span>)}
+          </div>
+        </div>
+        <div>
+          <h3 class="mb-3 flex items-baseline justify-between font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            Pi plugins <a href="/docs/reference/package-stack" class="normal-case tracking-normal hover:text-foreground">Package stack →</a>
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            {plugins.map((plugin) => <span class="rounded-md border border-border px-2 py-1 font-mono text-xs text-muted-foreground">{plugin}</span>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-border">
+    <div class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:px-6 md:flex-row md:items-center md:justify-between">
+      <div class="max-w-xl">
+        <h2 class="text-3xl font-semibold tracking-tight">Run it on your own machine</h2>
+        <p class="mt-3 leading-relaxed text-muted-foreground">Your files, your model accounts, your decisions. Every claim traces back to a source, and nothing launches without your confirmation.</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="/docs/getting-started/installation" class="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]">Get started</a>
+        <a href="https://github.com/babakhalid/openmarketing" target="_blank" rel="noopener noreferrer" class="inline-flex h-10 items-center rounded-lg border border-input px-5 text-sm font-medium transition-colors hover:bg-accent">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      function init() {
+        var toggles = Array.from(document.querySelectorAll(".install-toggle"))
+        var btn = document.getElementById("install-cmd")
+        var text = document.getElementById("install-command")
+        var copyIcon = document.getElementById("install-copy")
+        var checkIcon = document.getElementById("install-check")
+        if (!btn || !text || !copyIcon || !checkIcon) return
+
+        toggles.forEach(function (toggle) {
+          if (toggle._b) return
+          toggle._b = true
+          toggle.addEventListener("click", function () {
+            var cmd = toggle.getAttribute("data-command")
+            if (!cmd) return
+            btn.setAttribute("data-command", cmd)
+            text.textContent = cmd
+            toggles.forEach(function (t) {
+              t.classList.remove("bg-card", "text-foreground")
+              t.classList.add("text-muted-foreground")
+            })
+            toggle.classList.remove("text-muted-foreground")
+            toggle.classList.add("bg-card", "text-foreground")
+          })
+        })
+
+        if (!btn._b) {
+          btn._b = true
+          btn.addEventListener("click", function () {
+            var cmd = btn.getAttribute("data-command")
+            if (!cmd) return
+            navigator.clipboard.writeText(cmd).then(function () {
+              copyIcon.classList.add("hidden")
+              checkIcon.classList.remove("hidden")
+              setTimeout(function () {
+                copyIcon.classList.remove("hidden")
+                checkIcon.classList.add("hidden")
+              }, 2000)
+            })
+          })
+        }
+      }
+      function calmHero() {
+        var film = document.getElementById("hero-film")
+        if (film && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          film.removeAttribute("autoplay")
+          film.pause()
+        }
+      }
+      init()
+      calmHero()
+      document.addEventListener("astro:after-swap", function () {
+        init()
+        calmHero()
+      })
+    })()
+  </script>
+</Layout>
