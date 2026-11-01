@@ -40,12 +40,18 @@ export function loginShellPath() {
 	}
 }
 
+// The extension UI methods that wait for an answer; the others (notify, setStatus, …) are fire-and-forget.
+const DIALOGS = new Set(["select", "confirm", "input", "editor"]);
+
 export class AgentHost {
 	constructor({ cwd, nodePath, cliPath, envPath, onEvent, onExit }) {
 		this.cwd = cwd;
 		this.onEvent = onEvent;
 		this.onExit = onExit;
 		this.pending = new Map();
+		// Dialogs the agent is waiting on. The window keeps them only in memory, so after a
+		// reload it asks for them again instead of leaving the agent waiting on an answer forever.
+		this.openUi = new Map();
 		this.nextId = 1;
 		this.stderr = "";
 		this.buffer = "";
@@ -91,6 +97,8 @@ export class AgentHost {
 				else done(message.data);
 				continue;
 			}
+			if (message.type === "extension_ui_request" && DIALOGS.has(message.method)) this.openUi.set(message.id, message);
+			if (message.type === "agent_end") this.openUi.clear();
 			this.onEvent?.(message);
 		}
 	}
@@ -129,6 +137,7 @@ export class AgentHost {
 
 	respondToUi(response) {
 		this.#write({ type: "extension_ui_response", ...response });
+		this.openUi.delete(response.id);
 	}
 
 	stop() {

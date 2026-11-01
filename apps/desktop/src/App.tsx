@@ -5,6 +5,7 @@ import { decisionFor } from "./components/DecisionCard";
 import { Composer } from "./components/Composer";
 import { Inspector } from "./components/Inspector";
 import { AccountsPanel, LoginFlow, accountLabel, type LoginState } from "./components/Accounts";
+import { ComingSoon, type Page } from "./components/ComingSoon";
 import { CustomizeModal, UiRequestModal, Viewer } from "./components/Overlays";
 import { Sidebar, type GettingStartedStep } from "./components/Sidebar";
 import type { FixAction } from "./lib/errors";
@@ -27,6 +28,8 @@ export default function App() {
 	const [inspectorOpen, setInspectorOpen] = useState(false);
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [customizeOpen, setCustomizeOpen] = useState(false);
+	// Sidebar pages that are not built yet show a placeholder in place of the chat.
+	const [page, setPage] = useState<Page>();
 	const [moreOpen, setMoreOpen] = useState(false);
 	const [userName, setUserName] = useState("");
 	// workspace navigation history for the sidebar back/forward arrows
@@ -101,7 +104,8 @@ export default function App() {
 					busy: Boolean(opened.state?.isStreaming),
 					commands: opened.commands ?? [],
 					models: opened.models ?? [],
-					items: s.items.length ? s.items : itemsFromHistory(opened.messages ?? []),
+					items: s.items.length ? s.items : itemsFromHistory(opened.messages ?? [], Boolean(opened.state?.isStreaming)),
+					uiRequests: s.uiRequests.length ? s.uiRequests : (opened.uiRequests ?? []),
 					sessionFile: opened.state?.sessionFile,
 				}));
 				loadSessions(cwd);
@@ -222,9 +226,12 @@ export default function App() {
 			return;
 		}
 		const cwd = active;
-		patch(cwd, (s) => ({ ...s, items: [...s.items, { kind: "user", id: `u${Date.now()}`, text }] }));
+		const busy = Boolean(session?.busy);
+		patch(cwd, (s) => ({ ...s, items: [...s.items, { kind: "user", id: `u${Date.now()}`, text, ...(busy ? { queued: true } : {}) }] }));
 		try {
-			await api.command(cwd, { type: "prompt", message: text, ...(session?.busy ? { streamingBehavior: "followUp" } : {}) });
+			// Mid-run messages steer: Pi hands them to the model once the current step's tool calls
+			// finish. A follow-up would wait until the whole run is over, which reads as being ignored.
+			await api.command(cwd, { type: "prompt", message: text, ...(busy ? { streamingBehavior: "steer" } : {}) });
 		} catch (error) {
 			patch(cwd, (s) => ({ ...s, items: [...s.items, { kind: "notice", id: `e${Date.now()}`, level: "error", text: (error as Error).message }] }));
 		}
@@ -338,6 +345,7 @@ export default function App() {
 	const composer = (
 		<Composer
 			busy={Boolean(session?.busy)}
+			started={hasLog}
 			disabled={Boolean(active && !session?.connected)}
 			videoMode={videoMode}
 			setVideoMode={setVideoMode}
@@ -347,7 +355,7 @@ export default function App() {
 			thinking={session?.thinking}
 			draft={draft}
 			setDraft={setDraft}
-			placeholder={!active ? "Open a folder to start" : videoMode ? "Describe the video you want" : "Ask anything"}
+			placeholder={!active ? "Open a folder to start" : session?.busy ? "Steer the agent: it reads this after the current step" : videoMode && !hasLog ? "Describe the video you want" : hasLog ? "Reply to the agent" : "Ask anything"}
 			onSend={send}
 			onStop={() => active && api.command(active, { type: "abort" })}
 			onAttach={importFiles}
@@ -520,26 +528,36 @@ export default function App() {
 					sessions={sessions}
 					info={info}
 					userName={userName || "OpenMarketing"}
-					mode={videoMode ? "video" : "chat"}
+					mode={page ?? (videoMode ? "video" : "chat")}
 					steps={steps}
 					accounts={connectedAccounts}
 					sessionLists={sessionLists}
 					activeSessionFile={session?.sessionFile}
-					onResume={resumeSession}
-					onSelect={(cwd) => connect(cwd)}
+					onResume={(cwd, path) => {
+						setPage(undefined);
+						return resumeSession(cwd, path);
+					}}
+					onSelect={(cwd) => {
+						setPage(undefined);
+						connect(cwd);
+					}}
 					onAdd={addWorkspace}
 					onForget={async (cwd) => {
 						const state = await api.forgetWorkspace(cwd);
 						setRecent(state.recent);
 						if (cwd === active) setActive(undefined);
 					}}
-					onNewVideo={() => newChat(true)}
-					onNewChat={() => newChat(false)}
-					onAutomations={() => {
-						newChat(false);
-						setDraft("/loop ");
+					onNewVideo={() => {
+						setPage(undefined);
+						newChat(true);
 					}}
-					onCustomize={() => setCustomizeOpen(true)}
+					onNewChat={() => {
+						setPage(undefined);
+						newChat(false);
+					}}
+					onAutomations={() => setPage("automations")}
+					onCustomize={() => setPage("customize")}
+					onSettings={() => setCustomizeOpen(true)}
 					onCollapse={() => setSidebarOpen(false)}
 					onBack={() => go(-1)}
 					onForward={() => go(1)}
@@ -573,7 +591,17 @@ export default function App() {
 				{session?.error ? <div className="banner">{session.error}</div> : null}
 				{session?.connecting ? <div className="banner soft">Starting the agent in {tilde(active ?? "")}…</div> : null}
 
-				{needsOnboarding ? (
+				{page && !needsOnboarding ? (
+					<ComingSoon
+						page={page}
+						onAction={() => {
+							setPage(undefined);
+							if (page === "customize") return setCustomizeOpen(true);
+							newChat(false);
+							setDraft("/loop ");
+						}}
+					/>
+				) : needsOnboarding ? (
 					<div className="onboarding">
 						<div className="onb-inner">
 							<div className="onb-mark">OM</div>
@@ -591,7 +619,7 @@ export default function App() {
 					</div>
 				) : hasLog ? (
 					<>
-						<ChatLog items={session!.items} cwd={active!} busy={Boolean(session?.busy)} onOpen={setViewer} alternative={alternativeLabel} onFix={fixProblem} requests={session!.uiRequests} onRespond={respondUi} />
+						<ChatLog items={session!.items} cwd={active!} busy={Boolean(session?.busy)} onOpen={setViewer} alternative={alternativeLabel} onFix={fixProblem} requests={session!.uiRequests} onRespond={respondUi} onSend={send} />
 						<div className="dock">{composer}</div>
 					</>
 				) : (

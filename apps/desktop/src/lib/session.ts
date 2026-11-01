@@ -17,8 +17,9 @@ const textOf = (content: unknown): string => {
 // A failed assistant turn has no content, only an errorMessage; it becomes a guided problem card.
 const problemItem = (id: string, message: any): Item => ({ kind: "problem", id, problem: classifyError(message.errorMessage, message.provider, message.model) });
 
-// Rebuild the chat log from persisted session messages (get_messages).
-export function itemsFromHistory(messages: any[]): Item[] {
+// Rebuild the chat log from persisted session messages (get_messages). While the agent is still
+// running (a window reload mid-turn), a tool call without a result is still in progress.
+export function itemsFromHistory(messages: any[], live = false): Item[] {
 	const items: Item[] = [];
 	const tools = new Map<string, Extract<Item, { kind: "tool" }>>();
 	messages.forEach((message, m) => {
@@ -31,7 +32,7 @@ export function itemsFromHistory(messages: any[]): Item[] {
 				if (block.type === "text" && block.text?.trim()) items.push({ kind: "text", id, text: block.text, streaming: false });
 				else if (block.type === "thinking" && block.thinking?.trim()) items.push({ kind: "thinking", id, text: block.thinking, streaming: false, startedAt: 0, endedAt: 0 });
 				else if (block.type === "toolCall") {
-					const tool: Extract<Item, { kind: "tool" }> = { kind: "tool", id: block.id, name: block.name, args: block.arguments ?? {}, status: "done", startedAt: 0, endedAt: 0 };
+					const tool: Extract<Item, { kind: "tool" }> = { kind: "tool", id: block.id, name: block.name, args: block.arguments ?? {}, status: live ? "running" : "done", startedAt: live ? Date.now() : 0, endedAt: live ? undefined : 0 };
 					tools.set(block.id, tool);
 					items.push(tool);
 				}
@@ -77,9 +78,20 @@ export function reduceEvent(session: Draft, event: any, now = Date.now()): Draft
 				...session,
 				busy: false,
 				items: session.items.map((item) =>
-					item.kind === "tool" && (item.status === "running" || item.status === "preparing") ? { ...item, status: "done", endedAt: item.endedAt ?? now } : item.kind !== "tool" && "streaming" in item && item.streaming ? { ...item, streaming: false } : item,
+					item.kind === "tool" && (item.status === "running" || item.status === "preparing")
+						? { ...item, status: "done", endedAt: item.endedAt ?? now }
+						: item.kind !== "tool" && "streaming" in item && item.streaming
+							? { ...item, streaming: false }
+							: item.kind === "user" && item.queued && event.type === "agent_settled"
+								? { ...item, queued: false }
+								: item,
 				),
 			};
+		// A steered message stays marked as queued until Pi takes it off the queue and hands it to the model.
+		case "queue_update": {
+			const waiting = [...(event.steering ?? []), ...(event.followUp ?? [])];
+			return { ...session, items: session.items.map((item) => (item.kind === "user" && item.queued && !waiting.includes(item.text) ? { ...item, queued: false } : item)) };
+		}
 		case "message_start": {
 			if (event.message?.role !== "assistant") return session;
 			return { ...session, _msg: (session._msg ?? 0) + 1 };

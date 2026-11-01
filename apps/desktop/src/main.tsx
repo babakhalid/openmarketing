@@ -2,6 +2,7 @@ import "@fontsource-variable/jetbrains-mono";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./styles.css";
 
 // Theme is applied before first paint so there is no flash of the wrong palette.
@@ -13,6 +14,8 @@ try {
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
-		<App />
+		<ErrorBoundary label="app" page>
+			<App />
+		</ErrorBoundary>
 	</StrictMode>,
 );

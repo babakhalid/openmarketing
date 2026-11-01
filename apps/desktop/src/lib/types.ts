@@ -8,7 +8,7 @@ export type ToolResult = {
 };
 
 export type Item =
-	| { kind: "user"; id: string; text: string }
+	| { kind: "user"; id: string; text: string; queued?: boolean }
 	| { kind: "text"; id: string; text: string; streaming: boolean }
 	| { kind: "thinking"; id: string; text: string; streaming: boolean; startedAt: number; endedAt?: number }
 	| {
@@ -91,7 +91,7 @@ export type WorkspaceInfo = {
 export type OmApi = {
 	getState(): Promise<{ recent: string[]; last?: string; runtime: { nodePath?: string; cliPath?: string }; user?: string; screenshot: boolean; autoPrompt?: string; tab?: "outputs" | "references" | "branding"; view?: string; theme?: "dark" | "light"; customize?: boolean; onboarding?: boolean; login?: string }>;
 	pickWorkspace(): Promise<string | undefined>;
-	openWorkspace(cwd: string): Promise<{ state: any; commands: CommandInfo[]; models: ModelInfo[]; messages: any[] }>;
+	openWorkspace(cwd: string): Promise<{ state: any; commands: CommandInfo[]; models: ModelInfo[]; messages: any[]; uiRequests?: UiRequest[] }>;
 	forgetWorkspace(cwd: string): Promise<{ recent: string[]; last?: string }>;
 	describeWorkspace(cwd: string): Promise<WorkspaceInfo>;
 	importReferences(cwd: string, paths: string[]): Promise<string[]>;

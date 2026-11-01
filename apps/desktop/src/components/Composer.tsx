@@ -18,6 +18,7 @@ function Popover({ open, onClose, children, align = "right", className = "" }: {
 
 export function Composer({
 	busy,
+	started,
 	disabled,
 	videoMode,
 	setVideoMode,
@@ -35,6 +36,8 @@ export function Composer({
 	placeholder,
 }: {
 	busy: boolean;
+	/** The conversation already has messages: replies are corrections, not new video briefs. */
+	started: boolean;
 	disabled: boolean;
 	videoMode: boolean;
 	setVideoMode: (on: boolean) => void;
@@ -75,7 +78,9 @@ export function Composer({
 	const submit = () => {
 		const text = draft.trim();
 		if (!text || disabled) return;
-		onSend(videoMode && !text.startsWith("/") ? `/video ${text}` : text);
+		// Only the message that opens a conversation becomes a /video brief. Later messages, and
+		// anything typed while the agent works, go through as they are so they steer the current video.
+		onSend(videoMode && !started && !busy && !text.startsWith("/") ? `/video ${text}` : text);
 		setDraft("");
 	};
 

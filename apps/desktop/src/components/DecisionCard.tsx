@@ -38,13 +38,29 @@ function Preview({ path, cwd, onOpen }: { path: string; cwd: string; onOpen: (pa
 // The guided checkpoint: the agent's options (recommendation preselected, with its reason and
 // previews), the user's own words, and a way to defer. Answers go back through the dialogs the
 // tool opens one question at a time, so the card queues them and replies as each one arrives.
-export function DecisionCard({ tool, cwd, requests, onRespond, onOpen }: { tool: Tool; cwd: string; requests: UiRequest[]; onRespond: (response: Record<string, unknown>) => void; onOpen: (path: string) => void }) {
+export function DecisionCard({
+	tool,
+	cwd,
+	requests,
+	onRespond,
+	onOpen,
+	onSend,
+}: {
+	tool: Tool;
+	cwd: string;
+	requests: UiRequest[];
+	onRespond: (response: Record<string, unknown>) => void;
+	onOpen: (path: string) => void;
+	onSend: (text: string) => void;
+}) {
 	const a = tool.args ?? {};
 	const questions: Question[] = a.questions ?? [];
 	const answers: Answer[] | undefined = tool.result?.details?.answers;
-	const [picks, setPicks] = useState<Record<string, Pick>>(() =>
-		Object.fromEntries(questions.map((q) => [q.id, { ids: q.options.filter((o) => o.recommended).slice(0, q.multiSelect ? undefined : 1).map((o) => o.id), own: "" }])),
-	);
+	// The card mounts while the tool call is still streaming, before its questions arrive, so a
+	// question without a stored pick falls back to its recommendation instead of being seeded once.
+	const [stored, setPicks] = useState<Record<string, Pick>>({});
+	const pickFor = (q: Question): Pick => stored[q.id] ?? { ids: q.options.filter((o) => o.recommended).slice(0, q.multiSelect ? undefined : 1).map((o) => o.id), own: "" };
+	const picks = Object.fromEntries(questions.map((q) => [q.id, pickFor(q)]));
 	const [sent, setSent] = useState<"answer" | "skip">();
 	const [writing, setWriting] = useState<Record<string, boolean>>({});
 	const pending = useMemo(() => requests.find((r) => questions.some((q) => q.question === r.title)), [requests, questions]);
@@ -62,11 +78,29 @@ export function DecisionCard({ tool, cwd, requests, onRespond, onOpen }: { tool:
 
 	const toggle = (q: Question, id: string) =>
 		setPicks((p) => {
-			const ids = p[q.id].ids;
-			const next = q.multiSelect ? (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]) : [id];
-			return { ...p, [q.id]: { ...p[q.id], ids: next } };
+			const current = p[q.id] ?? pickFor(q);
+			const next = q.multiSelect ? (current.ids.includes(id) ? current.ids.filter((x) => x !== id) : [...current.ids, id]) : [id];
+			return { ...p, [q.id]: { ...current, ids: next } };
 		});
 	const ready = questions.every((q) => picks[q.id]?.ids.length || picks[q.id]?.own.trim());
+	// A checkpoint whose run ended unanswered (the app was restarted, the turn was stopped) can't take
+	// the reply through its dialogs any more, so the decision goes to the agent as a chat message.
+	const closed = tool.status !== "running";
+	const canSubmit = ready && !sent && (waiting || closed);
+	const decisionText = () =>
+		[
+			`My decisions for "${a.title ?? "the checkpoint"}":`,
+			...questions.map((q) => {
+				const labels = q.options.filter((o) => picks[q.id].ids.includes(o.id)).map((o) => o.label);
+				const own = picks[q.id].own.trim();
+				return `- ${q.question} → ${[labels.join(" + "), own && `"${own}"`].filter(Boolean).join(" — ")}`;
+			}),
+		].join("\n");
+	const submit = () => {
+		if (!canSubmit) return;
+		if (closed) onSend(decisionText());
+		setSent("answer");
+	};
 
 	if (answers) {
 		return (
@@ -145,14 +179,20 @@ export function DecisionCard({ tool, cwd, requests, onRespond, onOpen }: { tool:
 							})}
 						</div>
 						{writing[q.id] ? (
-							<input
-								className="dc-own"
-								autoFocus
-								placeholder={picks[q.id]?.ids.length ? "Add a note to your pick, e.g. warmer light, slower cut…" : "Describe what you want instead…"}
-								value={picks[q.id]?.own ?? ""}
-								disabled={Boolean(sent)}
-								onChange={(e) => setPicks((p) => ({ ...p, [q.id]: { ...p[q.id], own: e.target.value } }))}
-							/>
+							<div className="dc-own-row">
+								<input
+									className="dc-own"
+									autoFocus
+									placeholder={picks[q.id]?.ids.length ? "Add a note to your pick, e.g. warmer light, slower cut…" : "Describe what you want instead…"}
+									value={picks[q.id]?.own ?? ""}
+									disabled={Boolean(sent)}
+									onChange={(e) => setPicks((p) => ({ ...p, [q.id]: { ...(p[q.id] ?? pickFor(q)), own: e.target.value } }))}
+									onKeyDown={(e) => e.key === "Enter" && submit()}
+								/>
+								<button className="solid" disabled={!canSubmit} onClick={submit}>
+									Submit
+								</button>
+							</div>
 						) : (
 							<button className="dc-own-toggle" disabled={Boolean(sent)} onClick={() => setWriting((w) => ({ ...w, [q.id]: true }))}>
 								<PenLine size={12} /> Add your own direction
@@ -162,15 +202,24 @@ export function DecisionCard({ tool, cwd, requests, onRespond, onOpen }: { tool:
 				);
 			})}
 			<footer className="dc-actions">
-				{tool.status !== "running" ? (
-					<span className="dim">This checkpoint is no longer waiting.</span>
+				{closed ? (
+					sent ? (
+						<span className="dim">Sent to the agent as a message.</span>
+					) : (
+						<>
+							<button className="solid" disabled={!canSubmit} onClick={submit}>
+								Send as a message
+							</button>
+							<span className="dim">This checkpoint closed before it got an answer.</span>
+						</>
+					)
 				) : sent ? (
 					<span className="dim">
 						<span className="ws-busy" /> Sending your decision…
 					</span>
 				) : (
 					<>
-						<button className="solid" disabled={!ready || !waiting} onClick={() => setSent("answer")}>
+						<button className="solid" disabled={!canSubmit} onClick={submit}>
 							Continue
 						</button>
 						<button className="ghost" disabled={!waiting} onClick={() => setSent("skip")}>

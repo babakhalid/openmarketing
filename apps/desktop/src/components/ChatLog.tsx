@@ -7,6 +7,7 @@ import { timecode } from "../lib/util";
 import { ToolCard } from "./cards/ToolCard";
 import { ProblemCard } from "./ProblemCard";
 import { DecisionCard } from "./DecisionCard";
+import { ErrorBoundary } from "./ErrorBoundary";
 import type { FixAction } from "../lib/errors";
 
 function Thinking({ item }: { item: Extract<Item, { kind: "thinking" }> }) {
@@ -85,6 +86,7 @@ export function ChatLog({
 	onFix,
 	requests,
 	onRespond,
+	onSend,
 }: {
 	items: Item[];
 	cwd: string;
@@ -94,6 +96,7 @@ export function ChatLog({
 	onFix: (item: ProblemItem, action: FixAction) => Promise<void>;
 	requests: UiRequest[];
 	onRespond: (response: Record<string, unknown>) => void;
+	onSend: (text: string) => void;
 }) {
 	const end = useRef<HTMLDivElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
@@ -114,13 +117,19 @@ export function ChatLog({
 		>
 			<div className="log-inner">
 				{toBlocks(items).map((block) => {
-					if (block.kind === "tools") return <WorkBlock key={block.id} tools={block.tools} cwd={cwd} onOpen={onOpen} />;
+					if (block.kind === "tools")
+						return (
+							<ErrorBoundary key={block.id} label="tool activity">
+								<WorkBlock tools={block.tools} cwd={cwd} onOpen={onOpen} />
+							</ErrorBoundary>
+						);
 					const item = block.item;
 					switch (item.kind) {
 						case "user":
 							return (
-								<div key={item.id} className="turn-user">
+								<div key={item.id} className={`turn-user ${item.queued ? "queued" : ""}`}>
 									<div className="bubble">{item.text}</div>
+									{item.queued ? <span className="queued-note">Queued · reaches the agent after the current step</span> : null}
 								</div>
 							);
 						case "text":
@@ -132,7 +141,11 @@ export function ChatLog({
 						case "thinking":
 							return <Thinking key={item.id} item={item} />;
 						case "tool":
-							return <DecisionCard key={item.id} tool={item} cwd={cwd} requests={requests} onRespond={onRespond} onOpen={onOpen} />;
+							return (
+								<ErrorBoundary key={item.id} label="decision card">
+									<DecisionCard tool={item} cwd={cwd} requests={requests} onRespond={onRespond} onOpen={onOpen} onSend={onSend} />
+								</ErrorBoundary>
+							);
 						case "problem":
 							return <ProblemCard key={item.id} item={item} alternative={alternative} onFix={onFix} />;
 						case "notice":

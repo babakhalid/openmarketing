@@ -27,6 +27,7 @@ export function Sidebar({
 	onNewChat,
 	onAutomations,
 	onCustomize,
+	onSettings,
 	onCollapse,
 	onBack,
 	onForward,
@@ -51,13 +52,14 @@ export function Sidebar({
 	onNewChat: () => void;
 	onAutomations: () => void;
 	onCustomize: () => void;
+	onSettings: () => void;
 	onCollapse: () => void;
 	onBack: () => void;
 	onForward: () => void;
 	canBack: boolean;
 	canForward: boolean;
 	steps: GettingStartedStep[];
-	mode: "video" | "chat";
+	mode: "video" | "chat" | "automations" | "customize";
 	accounts: ProviderStatus[];
 	sessionLists: Record<string, SessionEntry[]>;
 	activeSessionFile?: string;
@@ -103,11 +105,11 @@ export function Sidebar({
 					<MessageSquarePlus size={16} />
 					New Chat
 				</button>
-				<button className="side-item" onClick={onAutomations}>
+				<button className={`side-item ${mode === "automations" ? "on" : ""}`} onClick={onAutomations}>
 					<CalendarClock size={16} />
 					Automations
 				</button>
-				<button className="side-item" onClick={onCustomize}>
+				<button className={`side-item ${mode === "customize" ? "on" : ""}`} onClick={onCustomize}>
 					<Blocks size={16} />
 					Customize
 				</button>
@@ -197,7 +199,7 @@ export function Sidebar({
 			) : null}
 
 			<div className="side-user">
-				<button className="user-card" onClick={onCustomize} title={accounts.length ? accounts.map((p) => accountLabel(p)).join("\n") : "Connect a model provider"}>
+				<button className="user-card" onClick={onSettings} title={accounts.length ? accounts.map((p) => accountLabel(p)).join("\n") : "Connect a model provider"}>
 					<span className="avatar">{initials || "OM"}</span>
 					<span className="user-text">
 						<span className="user-name">{userName}</span>
@@ -207,7 +209,7 @@ export function Sidebar({
 						</span>
 					</span>
 				</button>
-				<button className="icon-btn" title="Settings" onClick={onCustomize}>
+				<button className="icon-btn" title="Settings" onClick={onSettings}>
 					<Settings size={16} />
 				</button>
 			</div>

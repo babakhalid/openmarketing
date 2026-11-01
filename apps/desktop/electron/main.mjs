@@ -129,7 +129,7 @@ async function openWorkspace(cwd) {
 		host.request({ type: "get_available_models" }).catch(() => ({ models: [] })),
 		host.request({ type: "get_messages" }).catch(() => ({ messages: [] })),
 	]);
-	return { state, commands: commands?.commands ?? commands, models: models?.models ?? models, messages: messages?.messages ?? messages };
+	return { state, commands: commands?.commands ?? commands, models: models?.models ?? models, messages: messages?.messages ?? messages, uiRequests: [...host.openUi.values()] };
 }
 
 function gitBranch(cwd) {
